@@ -74,8 +74,10 @@ function toggleEditForm(id){
     }
 
 }
+console.log("dashboard.js loaded");
 
 document.addEventListener("click", function (e) {
+    console.log("SUBMIT FIRED:", e.target); 
         // التحقق إذا كان الضغط على أزرار التصفح الخاصة بقسم My Pets
         const paginationLink = e.target.closest('#mypets .pagination-container a');
         if (paginationLink) {
@@ -105,3 +107,53 @@ document.addEventListener("click", function (e) {
             .catch(error => console.error('Error loading page:', error));
         }
     });
+
+// =======================
+// AJAX Approve / Restart Final Fix
+// =======================
+
+document.addEventListener("submit", function (e) {
+    const form = e.target;
+
+    // التأكد أن الـ form يحمل الكلاس المطلوبة
+    if (!form.classList.contains("ajax-request-form")) {
+        return;
+    }
+
+    e.preventDefault(); // منع الانتقال لصفحة الـ JSON بالقوة
+
+    const formData = new FormData(form);
+    const csrfInput = form.querySelector("input[name='csrfmiddlewaretoken']");
+    const csrftoken = csrfInput ? csrfInput.value : "";
+
+    fetch(form.action, {
+        method: "POST",
+        body: formData,
+        headers: {
+            "X-CSRFToken": csrftoken,
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) return;
+
+        const row = form.closest("tr");
+        if (!row) return;
+
+        const statusCell = row.querySelector(".status-cell");
+        const actionCell = row.querySelector(".action-cell");
+
+        let cls = "pending";
+        if (data.status === "Approved") cls = "approved";
+        if (data.status === "Rejected") cls = "rejected";
+
+        if (statusCell) {
+            statusCell.innerHTML = `<span class="status ${cls}">${data.status}</span>`;
+        }
+        if (actionCell) {
+            actionCell.innerHTML = "—";
+        }
+    })
+    .catch(error => console.error("Error:", error));
+});
