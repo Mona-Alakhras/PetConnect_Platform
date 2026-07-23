@@ -18,16 +18,17 @@
       PetConnect
     </a>
 
+    <!-- زر المنيو (الثلاث شرطات) -->
     <input type="checkbox" id="nav-toggle" class="navbar__checkbox">
     <label for="nav-toggle" class="navbar__toggle" aria-label="Menu">
       <span class="hamburger-icon">☰</span>
     </label>
 
+    <!-- القائمة المنسدلة التي ستظهر وتختفي -->
     <div class="navbar__menu">
       <ul class="navbar__links">
         <li><a href="{% url 'index' %}">Home</a></li>
 
-        <!-- يظهر للزوار العاديين والمتبنين، ويختفي فقط إذا كان المستخدم مسجل دخول وهو Owner -->
         {% if not user.is_authenticated or user.role != 'Owner' %}
         <li><a href="{% url 'browse_pets' %}">Browse Pets</a></li>
         {% endif %}
@@ -35,6 +36,9 @@
         {% if user.is_authenticated %}
         {% if user.role == 'Owner' %}
         <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        {% endif %}
+        {% if user.role == 'Owner' or user.role == 'Adopter' %}
+        <!-- تم دمج روابطك السابقة هنا -->
         {% endif %}
         {% if user.role == 'Adopter' %}
         <li><a href="{% url 'my_requests' %}">My Requests</a></li>
@@ -45,7 +49,7 @@
             class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">About Us</a></li>
       </ul>
 
-      <!-- أزرار الجهة اليمنى داخل القائمة -->
+      <!-- أسفل القائمة (اسم المستخدم وزر الخروج كما في رسمتك) -->
       <div class="navbar__actions">
         {% if user.is_authenticated %}
         <div class="navbar__user-menu">
@@ -89,7 +93,9 @@
         <div class="site-footer__col">
           <h3>Adopt</h3>
           <ul>
-            <li><a href="{% if not user.is_authenticated or user.role != 'Owner' %}{% url 'browse_pets' %}{% else %}{% url 'dashboard' %}{% endif %}">Browse Pets</a></li>
+            <li><a
+                href="{% if not user.is_authenticated or user.role != 'Owner' %}{% url 'browse_pets' %}{% else %}{% url 'dashboard' %}{% endif %}">Browse
+                Pets</a></li>
             <li><a href="#">Adoption Process</a></li>
             <li><a href="#">Success Stories</a></li>
             <li><a href="#">FAQs</a></li>
