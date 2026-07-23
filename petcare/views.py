@@ -6,6 +6,7 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator  # تأكدي من استيراد هذه المكتبة في أعلى الملف
 from django.db.models import Count, Q
+from django.http import JsonResponse
  
 def index(request):
     # حساب أعداد جميع الفئات بـ استعلام واحد فقط (Database Aggregation)
@@ -117,17 +118,28 @@ def admin_dashboard_view(request):
 # 3. قبول أو رفض الطلب
 @login_required
 def update_request_status(request, request_id, action):
-    adoption_req = get_object_or_404(AdoptionRequest, id=request_id)
- 
-    if action == 'Approved':
-        adoption_req.status = 'Approved'
-        adoption_req.pet.status = 'Adopted'
-        adoption_req.pet.save()
-    elif action == 'Rejected':
-        adoption_req.status = 'Rejected'
- 
-    adoption_req.save()
-    return redirect('dashboard')
+    if request.method == "POST":
+        adoption_req = get_object_or_404(
+            AdoptionRequest,
+            id=request_id
+        )
+        if action == "Approved":
+            adoption_req.status = "Approved"
+            adoption_req.pet.status = "Adopted"
+            adoption_req.pet.save()
+
+        elif action == "Rejected":
+            adoption_req.status = "Rejected"
+        adoption_req.save()
+
+        return JsonResponse({
+            "success": True,
+            "status": adoption_req.status
+        })
+
+    return JsonResponse({
+        "success": False
+    }, status=400)
  
  
 @require_POST
