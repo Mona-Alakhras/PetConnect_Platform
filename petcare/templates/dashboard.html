@@ -268,11 +268,10 @@
                 <h2>Adoption Requests</h2>
                 <p>Manage adoption requests for your pets.</p>
             </div>
-
             <div class="dashboard-card">
                 {% if incoming_requests %}
-                <div class="table-responsive" style="overflow-x: auto; width: 100%;">
-                    <table class="requests-table" style="width: 100%; border-collapse: collapse;">
+                <div class="table-responsive" style="overflow-x:auto; width:100%;">
+                    <table class="requests-table" style="width:100%; border-collapse:collapse;">
                         <thead>
                             <tr>
                                 <th>Pet</th>
@@ -289,26 +288,24 @@
                                 <td>
                                     <div class="pet-cell">
                                         {% if request.pet.images.first %}
-                                        <img src="{{ request.pet.images.first.image.url }}" alt="">
+                                        <img src="{{ request.pet.images.first.image.url }}">
                                         {% elif request.pet.image %}
-                                        <img src="{{ request.pet.image.url }}" alt="">
+                                        <img src="{{ request.pet.image.url }}">
                                         {% else %}
                                         <div class="pet-placeholder">🐾</div>
                                         {% endif %}
                                         <span>{{ request.pet.name }}</span>
                                     </div>
                                 </td>
-
                                 <td>
                                     <strong>{{ request.adopter.username }}</strong><br>
                                     <small>{{ request.adopter.email }}</small>
                                 </td>
-
                                 <td>
                                     {{ request.message|truncatechars:60 }}
                                 </td>
-
-                                <td>
+                                <!-- Status -->
+                                <td class="status-cell">
                                     {% if request.status == "Pending" %}
                                     <span class="status pending">Pending</span>
                                     {% elif request.status == "Approved" %}
@@ -320,20 +317,23 @@
                                 <td>
                                     {{ request.created_at|date:"d M Y" }}
                                 </td>
-                                <td>
+                                <!-- Actions -->
+                                <td class="action-cell">
                                     {% if request.status == "Pending" %}
                                     <div class="action-buttons">
                                         <form method="POST"
-                                            action="{% url 'update_request_status' request.id 'Approved' %}">
+                                            action="{% url 'update_request_status' request.id 'Approved' %}"
+                                            class="ajax-request-form">
                                             {% csrf_token %}
-                                            <button class="approve-btn">
+                                            <button type="submit" class="approve-btn">
                                                 Approve
                                             </button>
                                         </form>
                                         <form method="POST"
-                                            action="{% url 'update_request_status' request.id 'Rejected' %}">
+                                            action="{% url 'update_request_status' request.id 'Rejected' %}"
+                                            class="ajax-request-form">
                                             {% csrf_token %}
-                                            <button class="reject-btn">
+                                            <button type="submit" class="reject-btn">
                                                 Reject
                                             </button>
                                         </form>
@@ -349,11 +349,14 @@
                 </div>
                 {% else %}
                 <div class="empty-state">
-                    <div class="empty-icon">📋</div>
+                    <div class="empty-icon">
+                        📋
+                    </div>
                     <h3>No Adoption Requests Yet</h3>
                     <p>
                         Adoption requests for your pets will appear here.
                     </p>
+
                 </div>
                 {% endif %}
             </div>
