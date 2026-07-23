@@ -1,0 +1,368 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard | PetConnect{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="dashboard-sidebar">
+        <!-- <div class="sidebar-profile">
+            <div class="avatar">
+                {{ user.first_name|slice:":1"|upper }}
+            </div>
+            <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+            <p>Pet Owner</p>
+        </div> -->
+
+        <button class="sidebar-btn active" data-section="overview">
+            <i class="bi bi-house-door-fill"></i> Dashboard
+        </button>
+        <button class="sidebar-btn" data-section="mypets">
+            <i class="bi bi-heart-fill"></i> My Pets
+        </button>
+        <button class="sidebar-btn" data-section="addpet">
+            <i class="bi bi-plus-circle-fill"></i> Add Pet
+        </button>
+        <button class="sidebar-btn" data-section="requests">
+            <i class="bi bi-file-earmark-text-fill"></i> Requests
+        </button>
+    </aside>
+
+    <!-- ================= Main ================= -->
+    <main class="dashboard-content">
+        <!-- Dashboard -->
+        <section id="overview" class="dashboard-section">
+            <div class="welcome-card">
+                <div>
+                    <h1>
+                        Welcome back,
+                        {{ user.first_name }}
+                        👋
+                    </h1>
+                    <p>
+                        Manage your pets and adoption requests all from one place.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🐾</div>
+                    <h2>{{ total_pets }}</h2>
+                    <span>Total Pets</span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">📋</div>
+                    <h2>{{ active_requests_count }}</h2>
+                    <span>Pending Requests</span>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <h2>{{ approved_requests_count }}</h2>
+                    <span>Approved</span>
+                </div>
+            </div>
+
+            <!-- Recent Pets -->
+            <div class="section-title">
+                <h2>Recent Pets</h2>
+                <p>Your latest listed pets</p>
+            </div>
+            <div class="recent-pets-grid">
+                {% for pet in pets|slice:":3" %}
+                <div class="pet-card">
+                    {% with image=pet.images.first %}
+                    {% if image and image.image %}
+                    <img src="{{ image.image.url }}" alt="{{ pet.name }}">
+                    {% else %}
+                    <img src="{% static 'images/default_pet.png' %}" alt="Default Pet">
+                    {% endif %}
+                    {% endwith %}
+                    <div class="pet-card-body">
+                        <h3>{{ pet.name }}</h3>
+                        <p>{{ pet.breed }}</p>
+                        <span>{{ pet.status }}</span>
+                    </div>
+                </div>
+
+                {% empty %}
+                <div class="empty-box">
+                    <h3>No Pets Yet 🐶</h3>
+                    <p>
+                        Start by adding your first pet.
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+
+        </section>
+
+
+        <!-- My Pets -->
+        <section id="mypets" class="dashboard-section" style="display:none;">
+            <div class="section-header">
+                <div>
+                    <h1>My Pets 🐾</h1>
+                    <p>
+                        Here are your listed pets for adoption.
+                    </p>
+                </div>
+            </div>
+            <div class="pets-grid">
+                <!-- تم إزالة الـ slice ليقوم الـ Paginator بعرض عناصر الصفحة الحالية فقط -->
+                {% for pet in pets %}
+                <div class="pet-item">
+
+                    <!-- السلايدر الخاص بالصور -->
+                    <div class="pet-card-carousel" data-index="0">
+                        <div class="carousel-track">
+                            {% if pet.images.all %}
+                            {% for img in pet.images.all %}
+                            <div class="carousel-slide">
+                                {% if img.image %}
+                                <img src="{{ img.image.url }}" alt="{{ pet.name }}">
+                                {% else %}
+                                <div
+                                    style="width: 100%; height: 180px; background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 32px;">
+                                    🐾</div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            <div class="carousel-slide">
+                                <div
+                                    style="width: 100%; height: 180px; background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 32px;">
+                                    🐾</div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if pet.images.count > 1 %}
+                        <button class="carousel-btn carousel-prev" onclick="moveSlide(this, -1)">&#10094;</button>
+                        <button class="carousel-btn carousel-next" onclick="moveSlide(this, 1)">&#10095;</button>
+                        {% endif %}
+                    </div>
+
+                    <div class="pet-info">
+                        <h3>{{ pet.name }}</h3>
+                        <p>{{ pet.species }}</p>
+                        <p>{{ pet.breed }}</p>
+                        <p>📍 {{ pet.location }}</p>
+                        <span class="status">{{ pet.status }}</span>
+                    </div>
+
+                    <div class="pet-actions">
+                        <button class="delete-btn">
+                            <i class="bi bi-trash-fill"></i> Delete
+                        </button>
+                    </div>
+
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <img src="{% static 'images/empty_pet.png' %}">
+                    <h2>No Pets Yet</h2>
+                    <p>Add your first pet and start receiving adoption requests.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- أزرار التنقل بين الصفحات (Pagination Controls) -->
+            {% if pets.has_other_pages %}
+            <div class="pagination-container"
+                style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 30px;">
+                {% if pets.has_previous %}
+                <a href="?page={{ pets.previous_page_number }}" class="primary-btn"
+                    style="padding: 8px 16px; text-decoration: none; border-radius: 6px; background-color: #f97316; color: white;">Previous</a>
+                {% endif %}
+
+                <span style="font-weight: bold; color: #4a5568;">
+                    Page {{ pets.number }} of {{ pets.paginator.num_pages }}
+                </span>
+
+                {% if pets.has_next %}
+                <a href="?page={{ pets.next_page_number }}" class="primary-btn"
+                    style="padding: 8px 16px; text-decoration: none; border-radius: 6px; background-color: #f97316; color: white;">Next</a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+        </section>
+
+        <!-- Add Pet -->
+
+        <section id="addpet" class="dashboard-section" style="display:none;">
+            <div class="section-header">
+                <h2>Add New Pet</h2>
+                <p>Fill in the information below to list your pet for adoption.</p>
+            </div>
+            <div class="dashboard-card">
+                <form method="POST" action="{% url 'dashboard' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Pet Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="Max" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Breed</label>
+                            <input type="text" name="breed" class="form-control" placeholder="Golden Retriever"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label>Species</label>
+                            <select name="species" class="form-select" required>
+                                <option value="">Select Species</option>
+                                <option value="Dog">Dog</option>
+                                <option value="Cat">Cat</option>
+                                <option value="Bird">Bird</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Age</label>
+                            <input type="text" name="age" class="form-control" placeholder="2 years">
+                        </div>
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" name="location" class="form-control" placeholder="Gaza">
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select name="status" class="form-select">
+                                <option value="Available">Available</option>
+                                <option value="Adopted">Adopted</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group mt-4">
+                        <label>Pet Images (Maximum 3)</label>
+                        <input type="file" name="images" class="form-control" multiple accept="image/*">
+                        <small class="text-muted">
+                            JPG, PNG or WEBP • Maximum 3 images
+                        </small>
+                    </div>
+                    <div class="mt-4">
+                        <button class="primary-btn save-btn" type="submit">
+                            Add Pet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Requests -->
+        <section id="requests" class="dashboard-section" style="display:none;">
+            <div class="section-header">
+                <h2>Adoption Requests</h2>
+                <p>Manage adoption requests for your pets.</p>
+            </div>
+
+            <div class="dashboard-card">
+                {% if incoming_requests %}
+                <div class="table-responsive" style="overflow-x: auto; width: 100%;">
+                    <table class="requests-table" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th>Pet</th>
+                                <th>Adopter</th>
+                                <th>Message</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in incoming_requests %}
+                            <tr>
+                                <td>
+                                    <div class="pet-cell">
+                                        {% if request.pet.images.first %}
+                                        <img src="{{ request.pet.images.first.image.url }}" alt="">
+                                        {% elif request.pet.image %}
+                                        <img src="{{ request.pet.image.url }}" alt="">
+                                        {% else %}
+                                        <div class="pet-placeholder">🐾</div>
+                                        {% endif %}
+                                        <span>{{ request.pet.name }}</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <strong>{{ request.adopter.username }}</strong><br>
+                                    <small>{{ request.adopter.email }}</small>
+                                </td>
+
+                                <td>
+                                    {{ request.message|truncatechars:60 }}
+                                </td>
+
+                                <td>
+                                    {% if request.status == "Pending" %}
+                                    <span class="status pending">Pending</span>
+                                    {% elif request.status == "Approved" %}
+                                    <span class="status approved">Approved</span>
+                                    {% else %}
+                                    <span class="status rejected">Rejected</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ request.created_at|date:"d M Y" }}
+                                </td>
+                                <td>
+                                    {% if request.status == "Pending" %}
+                                    <div class="action-buttons">
+                                        <form method="POST"
+                                            action="{% url 'update_request_status' request.id 'Approved' %}">
+                                            {% csrf_token %}
+                                            <button class="approve-btn">
+                                                Approve
+                                            </button>
+                                        </form>
+                                        <form method="POST"
+                                            action="{% url 'update_request_status' request.id 'Rejected' %}">
+                                            {% csrf_token %}
+                                            <button class="reject-btn">
+                                                Reject
+                                            </button>
+                                        </form>
+                                    </div>
+                                    {% else %}
+                                    —
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📋</div>
+                    <h3>No Adoption Requests Yet</h3>
+                    <p>
+                        Adoption requests for your pets will appear here.
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}PetConnect · Find Your Forever Friend{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Fullscreen Hero Section -->
+<section class="hero-fullscreen">
+    <div class="hero-bg-overlay">
+        <img src="{% static 'images/home1.jpg' %}" alt="Pets Background">
+    </div>
+
+    <div class="hero-content-center">
+        {% if user.is_authenticated %}
+        <span class="hero__badge">{% if user.is_staff %}Admin{% else %}Adopter{% endif %}</span>
+        <h1 class="hero__title">Welcome back,<br>{{ user.username }}</h1>
+        <p class="hero__subtitle">Continue your adoption journey — new furry friends are waiting for you every day.</p>
+        {% else %}
+        <span class="hero__simple-subtitle">Welcome to PetConnect</span>
+        <h1 class="hero__title">Find Your Forever <span class="section__title-highlight"
+                style="color: var(--color-primary);">Friend</span></h1>
+        <p class="hero__subtitle">Give a loving home to a pet in need or connect with shelters easily.</p>
+        {% endif %}
+
+        <!-- <div class="hero__actions">
+            <a href="{% url 'pet_list' %}" class="btn-primary-custom">Browse Pets</a>
+           {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="btn-secondary-custom">My Dashboard</a>
+            {% else %}
+            <a href="{% url 'login' %}" class="btn-secondary-custom">Log In</a>
+            {% endif %} 
+        </div> -->
+
+        <!-- Hero Stats -->
+    </div>
+</section>
+
+<!-- ================= CATEGORIES ================= -->
+<section class="section">
+    <div class="section__header section__header--center">
+        <h2 class="section__title">Find <span class="section__title-highlight">Your Match</span></h2>
+        <p class="section__subtitle">Browse by category and discover the perfect companion for your lifestyle.</p>
+    </div>
+
+    <div class="categories-grid">
+        <!-- ربط كل كارد بمسار التصنيف الخاص به في الداتا بيز -->
+        <a href="{% url 'browse_pets' %}?species=Dog" class="category-card">
+            <div class="category-card__icon">🐶</div>
+            <div class="category-card__title">Dogs</div>
+            <div class="category-card__count">{{ dogs_count|default:"5" }} available</div>
+        </a>
+        <a href="{% url 'browse_pets' %}?species=Cat" class="category-card">
+            <div class="category-card__icon">🐱</div>
+            <div class="category-card__title">Cats</div>
+            <div class="category-card__count">{{ cats_count|default:"4" }} available</div>
+        </a>
+        <a href="{% url 'browse_pets' %}?species=Bird" class="category-card">
+            <div class="category-card__icon">🦜</div>
+            <div class="category-card__title">Birds</div>
+            <div class="category-card__count">{{ birds_count|default:"2" }} available</div>
+        </a>
+        <a href="{% url 'browse_pets' %}?species=Other" class="category-card">
+            <div class="category-card__icon">🐾</div>
+            <div class="category-card__title">Others</div>
+            <div class="category-card__count">{{ others_count|default:"1" }} available</div>
+        </a>
+    </div>
+</section>
+
+<!-- ================= FEATURED PETS ================= -->
+<section class="section section--muted">
+    <div class="section__header">
+        <div class="section__heading">
+            <h2 class="section__title">Featured <span class="section__title-highlight">Pets</span></h2>
+            <p class="section__subtitle">Meet some of our wonderful animals looking for their forever homes.</p>
+        </div>
+        <a href="{% url 'browse_pets' %}" class="section__link">View All Pets →</a>
+    </div>
+
+    <div class="pets-grid">
+        {% for pet in featured_pets %}
+        <a href="{% url 'pet_detail' pet.id %}" class="pet-card">
+            <!-- استبدال طريقة جلب الصورة لتتطابق مع قاعدة البيانات لديكِ -->
+            {% if pet.images.first %}
+            <img class="pet-card__image" src="{{ pet.images.first.image.url }}" alt="{{ pet.name }}">
+            {% else %}
+            <img class="pet-card__image" src="{% static 'images/default_pet.png' %}" alt="{{ pet.name }}">
+            {% endif %}
+
+            <div class="pet-card__body">
+                <div class="pet-card__top-row">
+                    <!-- إضافة فلتر title ليظهر الحرف الأول كابيتال -->
+                    <h3 class="pet-card__name">{{ pet.name|title }}</h3>
+                    <span class="pill pill--available">{{ pet.status }}</span>
+                </div>
+                <p class="pet-card__breed">{{ pet.breed }}</p>
+                <div class="pet-card__meta">
+                    <span>📅 {{ pet.age }} years</span>
+                    <span>📍 {{ pet.location }}</span>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <p style="text-align: center; color: #718096; grid-column: 1 / -1;">No available pets found at the moment.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="section">
+    <div class="section__header section__header--center">
+        <h2 class="section__title">How <span class="section__title-highlight">It Works</span></h2>
+        <p class="section__subtitle">Adopting your new best friend is simple and rewarding.</p>
+    </div>
+
+    <div class="steps-grid">
+        <div class="step-card">
+            <div class="step-card__number">01</div>
+            <div class="step-card__icon">🔍</div>
+            <h3 class="step-card__title">Browse & Search</h3>
+            <p class="step-card__desc">Explore our wide selection of pets. Filter by species, age, breed, or location to
+                find your perfect match.</p>
+        </div>
+
+        <div class="step-card">
+            <div class="step-card__number">02</div>
+            <div class="step-card__icon">📝</div>
+            <h3 class="step-card__title">Submit Request</h3>
+            <p class="step-card__desc">Found your companion? Fill out a simple adoption request form and tell us why
+                you'd be a great home.</p>
+        </div>
+
+        <div class="step-card">
+            <div class="step-card__number">03</div>
+            <div class="step-card__icon">🏡</div>
+            <h3 class="step-card__title">Welcome Home</h3>
+            <p class="step-card__desc">Once approved, bring your new family member home and start your beautiful journey
+                together.</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Banner -->
+<section class="cta-banner-full">
+    <div class="cta-bg-overlay">
+        <img src="{% static 'images/home2.jpg' %}" alt="Ready to Meet Your Match">
+    </div>
+
+    <div class="cta-content-center">
+        <h2 class="cta-banner__title">Ready to Meet Your Match?</h2>
+        <p class="cta-banner__subtitle">Browse our newest arrivals and find the companion who has been waiting just for
+            you.</p>
+        <div class="cta-banner__actions">
+            <a href="{% if not user.is_authenticated or user.role != 'Owner' %}{% url 'browse_pets' %}{% else %}{% url 'dashboard' %}{% endif %}" class="btn-primary-custom">Browse Pets</a>
+            <a href="#" class="btn-secondary-custom">View Favorites</a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

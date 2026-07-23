@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}PetConnect · About Us{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- 1. قسم المهمة (Our Mission) -->
+<section class="about-hero-section">
+    <div class="about-hero-container">
+        
+        <!-- قسم النص والقصة على اليسار -->
+        <div class="about-hero-text">
+            <span class="hero__badge">🐾 Our Story & Mission</span>
+            <h1 class="hero__title">
+                Connecting Hearts, <span class="hero__title-highlight">Saving Lives</span>
+            </h1>
+            <p class="hero__subtitle">
+                PetConnect was born out of a deep love for animals. We built a platform that bridges the gap between shelters, independent rescuers, and loving families—making pet adoption seamless, digital, and transparent.
+            </p>
+            <div class="hero__actions">
+                <a href="{% url 'browse_pets' %}" class="btn-primary-custom">Browse Pets</a>
+                <a href="{% url 'index' %}" class="btn-secondary-custom">Back to Home</a>
+            </div>
+        </div>
+
+        <!-- قسم العناصر/الكروت البصرية على اليمين (بدل الإحصائيات) -->
+        <div class="about-hero-features">
+            <div class="feature-box">
+                <div class="feature-box__icon">🔍</div>
+                <div>
+                    <h3>Transparency</h3>
+                    <p>Clear details and honest info about every single pet.</p>
+                </div>
+            </div>
+
+            <div class="feature-box">
+                <div class="feature-box__icon">❤️</div>
+                <div>
+                    <h3>Compassion</h3>
+                    <p>Putting animal welfare and care above everything else.</p>
+                </div>
+            </div>
+
+            <div class="feature-box">
+                <div class="feature-box__icon">🤝</div>
+                <div>
+                    <h3>Accessibility</h3>
+                    <p>A smooth, easy process to connect families with pets.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+<!-- 3. قسم فريق العمل / المطور (Meet the Minds Behind PetConnect) -->
+<section class="section about-team-section">
+    <div class="about-container">
+        <div class="section__header text-center">
+            <h2 class="section__title">Meet the Minds <span class="section__title-highlight">Behind PetConnect</span></h2>
+            <p class="section__subtitle">Passionate about software development and animal welfare.</p>
+        </div>
+
+        <div class="team-card-wrapper">
+            <div class="team-card">
+                <div class="team-avatar-placeholder">
+                    <span>👩‍💻</span>
+                </div>
+                <div class="team-info">
+                    <h3 class="team-name">Mona</h3>
+                    <span class="team-role">Software Development Student & Creator</span>
+                    <p class="team-bio">
+                        Developed PetConnect as a dedicated platform to merge technical backend skills with a heartfelt mission—making pet adoption seamless, digital, and accessible for shelters and families alike.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

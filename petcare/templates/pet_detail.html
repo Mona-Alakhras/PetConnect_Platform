@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}PetConnect · {{ pet.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pet_detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <!-- زر الرجوع -->
+    <a href="{% url 'browse_pets' %}" class="back-link">
+        ← Back to listings
+    </a>
+
+    <div class="pet-detail-grid">
+        <!-- قسم الصور (يسار) -->
+        <div class="pet-gallery">
+            <div class="pet-gallery__main">
+                {% if pet.images.first %}
+                <img src="{{ pet.images.first.image.url }}" alt="{{ pet.name }}">
+                {% else %}
+                <img src="{% static 'images/default_pet.png' %}" alt="{{ pet.name }}">
+                {% endif %}
+            </div>
+
+            {% if pet.images.all.count > 1 %}
+            <div class="pet-gallery__thumbnails">
+                {% for img in pet.images.all %}
+                <img src="{{ img.image.url }}" alt="Thumbnail">
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- قسم المعلومات والخصائص (يمين) -->
+        <div class="pet-info">
+            <div class="pet-info__header">
+                <span class="status-badge">
+                    {{ pet.status }}
+                </span>
+                <h1 class="pet-info__name">{{ pet.name|title }}</h1>
+                <p class="pet-info__breed">{{ pet.breed }}</p>
+            </div>
+
+            <!-- شبكة التفاصيل (المعلومات الموجودة في الـ Model فقط) -->
+            <div class="pet-specs-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="spec-item">
+                    <div class="spec-item__icon">🐾</div>
+                    <div class="spec-item__content">
+                        <span>Species</span>
+                        <strong>{{ pet.species }}</strong>
+                    </div>
+                </div>
+
+                <div class="spec-item">
+                    <div class="spec-item__icon">📅</div>
+                    <div class="spec-item__content">
+                        <span>Age</span>
+                        <strong>{{ pet.age }} years</strong>
+                    </div>
+                </div>
+
+                <div class="spec-item" style="grid-column: span 2;">
+                    <div class="spec-item__icon">📍</div>
+                    <div class="spec-item__content">
+                        <span>Location</span>
+                        <strong>{{ pet.location }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- زر طلب التبني -->
+            <div class="pet-actions">
+                {% if user.is_authenticated %}
+                <button type="button" class="adopt-btn" onclick="openModal()">Adopt Now</button>
+                {% else %}
+                <a href="{% url 'login' %}" class="adopt-btn">Log In to Adopt</a>
+                {% endif %}
+            </div>
+            <div id="adoptModal" class="modal-overlay">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h2 class="modal-title">Adopt {{ pet.name|title }}</h2>
+                        <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
+                    </div>
+
+                    <form method="POST" action="{% url 'adopt_pet' pet.id %}">
+                        {% csrf_token %}
+
+                        <div class="modal-form-group">
+                            <label class="modal-label">Your Name</label>
+                            <input type="text" class="modal-input"
+                                value="{{ user.get_full_name|default:user.username }}" disabled>
+                        </div>
+
+                        <div class="modal-form-group">
+                            <label class="modal-label">Email</label>
+                            <input type="email" class="modal-input" value="{{ user.email }}" disabled>
+                        </div>
+
+                        <div class="modal-form-group">
+                            <label class="modal-label">Why do you want to adopt {{ pet.name|title }}?</label>
+                            <textarea name="message" class="modal-textarea" rows="4" required
+                                placeholder="Tell us about your home, experience with pets, and why you would be a great match..."></textarea>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="modal-btn-cancel" onclick="closeModal()">Cancel</button>
+                            <button type="submit" class="modal-btn-submit">Submit Request</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'js/pet_detail.js' %}"></script>
+{% endblock %}

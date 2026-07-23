@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}PetConnect{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body class="{% if request.resolver_match.url_name == 'index' %}home-page{% endif %}">
+
+  <header class="navbar">
+    <a class="navbar__brand" href="{% url 'index' %}">
+      <span class="navbar__logo">🐾</span>
+      PetConnect
+    </a>
+
+    <input type="checkbox" id="nav-toggle" class="navbar__checkbox">
+    <label for="nav-toggle" class="navbar__toggle" aria-label="Menu">
+      <span class="hamburger-icon">☰</span>
+    </label>
+
+    <div class="navbar__menu">
+      <ul class="navbar__links">
+        <li><a href="{% url 'index' %}">Home</a></li>
+
+        <!-- يظهر للزوار العاديين والمتبنين، ويختفي فقط إذا كان المستخدم مسجل دخول وهو Owner -->
+        {% if not user.is_authenticated or user.role != 'Owner' %}
+        <li><a href="{% url 'browse_pets' %}">Browse Pets</a></li>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+        {% if user.role == 'Owner' %}
+        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        {% endif %}
+        {% if user.role == 'Adopter' %}
+        <li><a href="{% url 'my_requests' %}">My Requests</a></li>
+        {% endif %}
+        {% endif %}
+
+        <li><a href="{% url 'about' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">About Us</a></li>
+      </ul>
+
+      <!-- أزرار الجهة اليمنى داخل القائمة -->
+      <div class="navbar__actions">
+        {% if user.is_authenticated %}
+        <div class="navbar__user-menu">
+          <div class="navbar__user-badge">
+            <span class="navbar__user-avatar">👤</span>
+            <span class="navbar__user-name">{{ user.first_name|default:user.username }}</span>
+          </div>
+
+          <form method="POST" action="{% url 'logout' %}" style="margin: 0;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn--ghost navbar__logout-btn" title="Log Out">
+              <span>Log Out</span>
+            </button>
+          </form>
+        </div>
+        {% else %}
+        <a class="btn btn--primary" href="{% url 'login' %}">
+          Sign In
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  {% block content %}{% endblock %}
+
+  <footer class="site-footer">
+    <div class="site-footer__card">
+      <div class="site-footer__grid">
+        <div class="site-footer__brand">
+          <div class="site-footer__brand-row">
+            <span class="navbar__logo">🐾</span>
+            PetConnect
+          </div>
+          <p class="site-footer__tagline">
+            Connecting loving families with pets in need. Every adoption changes two lives — yours and theirs. Join us
+            in making a difference, one paw at a time.
+          </p>
+        </div>
+
+        <div class="site-footer__col">
+          <h3>Adopt</h3>
+          <ul>
+            <li><a href="{% if not user.is_authenticated or user.role != 'Owner' %}{% url 'browse_pets' %}{% else %}{% url 'dashboard' %}{% endif %}">Browse Pets</a></li>
+            <li><a href="#">Adoption Process</a></li>
+            <li><a href="#">Success Stories</a></li>
+            <li><a href="#">FAQs</a></li>
+          </ul>
+        </div>
+
+        <div class="site-footer__col">
+          <h3>About</h3>
+          <ul>
+            <li><a href="#">Our Mission</a></li>
+            <li><a href="#">Our Team</a></li>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">Careers</a></li>
+          </ul>
+        </div>
+
+        <div class="site-footer__col">
+          <h3>Support</h3>
+          <ul>
+            <li><a href="#">Donate</a></li>
+            <li><a href="#">Volunteer</a></li>
+            <li><a href="#">Foster</a></li>
+            <li><a href="#">Partner With Us</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="site-footer__bottom">
+        <span>© 2026 PetConnect. All rights reserved.</span>
+        <ul class="site-footer__legal-links">
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+        </ul>
+        <div class="site-footer__social">
+          <a href="#" aria-label="Facebook">f</a>
+          <a href="#" aria-label="Instagram">◎</a>
+          <a href="#" aria-label="X">✕</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  {% block extra_js %}{% endblock %}
+</body>
+
+<script>
+  window.addEventListener('scroll', function () {
+    const navbar = document.querySelector('.navbar');
+    if (window.scrollY > 50) {
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
+    }
+  });
+</script>
+
+</html>

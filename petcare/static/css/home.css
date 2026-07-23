@@ -1,0 +1,480 @@
+/* ================= HOME PAGE STYLES ================= */
+
+/* --- Fullscreen Hero Section (Under Navbar) --- */
+/* تعديل الهيرو سكشن في الصفحة الرئيسية لكي ينزل تحت النافبار تماماً */
+.home-page .hero-fullscreen {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 80px; 
+}
+
+/* التأكد من أن صورة الخلفية والأزرار تتوسط الشكل تماماً */
+.home-page .hero-bg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.home-page .hero-bg-overlay img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* طبقة تعتيم لإبراز النصوص فوق الصورة */
+.hero-bg-overlay::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4); 
+}
+
+.hero-content-center {
+    position: relative;
+    z-index: 2;
+    max-width: 850px;
+    margin: 0 auto;
+    color: #ffffff;
+    font-family: var(--font-body);
+}
+
+/* تحسين وتكبير شارة Welcome to PetConnect */
+.hero-content-center .hero__badge {
+    background-color: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+    backdrop-filter: blur(8px);
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 25px;
+    display: inline-block;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    letter-spacing: 0.5px;
+}
+
+/* تنسيق نص Welcome to PetConnect الجديد (بدون خلفية أو حدود) */
+/* تكبير حجم Welcome to PetConnect ليصبح متوازناً مع العنوان الرئيسي */
+.hero-content-center .hero__simple-subtitle {
+    display: block;
+    font-family: var(--font-display); /* استخدام خط العرض ليعطي فخامة وحضور أقوى */
+    font-size: 1.8rem; /* رفع الحجم بشكل ملحوظ ليتناسب مع الهيدر */
+    font-weight: 700;
+    color: var(--color-primary); 
+    margin-bottom: 15px;
+    letter-spacing: 0.8px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45); /* ظل أقوى لضمان وضوحه تماماً فوق الصورة */
+}
+
+.hero-content-center .hero__title {
+    font-family: var(--font-display);
+    font-size: 3.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.hero-content-center .hero__subtitle {
+    font-size: 1.2rem;
+    color: #f0f0f0;
+    margin-bottom: 35px;
+    line-height: 1.6;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.hero-content-center .hero__actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.btn-primary-custom {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    padding: 14px 32px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.btn-primary-custom:hover {
+    background-color: var(--color-primary-dark);
+    transform: translateY(-2px);
+}
+
+.btn-secondary-custom {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    backdrop-filter: blur(5px);
+    padding: 14px 32px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    transition: background 0.3s, transform 0.2s;
+}
+
+.btn-secondary-custom:hover {
+    background-color: rgba(255, 255, 255, 0.35);
+    transform: translateY(-2px);
+}
+
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    padding-top: 30px;
+    margin-top: 20px;
+}
+
+.stat-item h3 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 5px;
+}
+
+.stat-item p {
+    font-size: 0.95rem;
+    color: #e2e8f0;
+}
+
+
+/* --- General Sections & Headers --- */
+.section {
+    padding: 80px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: var(--font-body);
+}
+
+.section--muted {
+    background-color: var(--color-surface);
+    max-width: 100%;
+}
+
+.section__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 40px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 20px;
+}
+
+.section__header--center {
+    text-align: center;
+    display: block;
+}
+
+.section__title {
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 10px;
+}
+
+.section__title-highlight {
+    color: var(--color-primary);
+}
+
+.section__subtitle {
+    font-size: 1.05rem;
+    color: var(--color-text-muted);
+}
+
+.section__link {
+    font-weight: 600;
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.section__link:hover {
+    color: var(--color-primary-dark);
+    text-decoration: underline;
+}
+
+/* --- Categories Grid & Cards --- */
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.category-card {
+    background: var(--color-surface);
+    padding: 35px 20px;
+    border-radius: var(--radius-md);
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--color-border);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.category-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 25px 50px -15px rgba(15, 35, 30, 0.3);
+    border-color: var(--color-primary);
+}
+
+.category-card__icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.category-card__title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 8px;
+}
+
+.category-card__count {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+}
+
+/* --- Featured Pets Grid --- */
+.pets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.pet-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    text-decoration: none;
+    display: block;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--color-border);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.pet-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 25px 50px -15px rgba(15, 35, 30, 0.3);
+}
+
+.pet-card__image {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+
+.pet-card__body {
+    padding: 20px;
+}
+
+.pet-card__top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.pet-card__name {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.pet-card__breed {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    margin-bottom: 15px;
+}
+
+.pet-card__meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    border-top: 1px solid var(--color-border);
+    padding-top: 12px;
+}
+
+.pill {
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.pill--available {
+    background-color: var(--color-success-bg);
+    color: var(--color-success-text);
+}
+
+/* --- How It Works Steps Grid (مع تأثير الـ Hover المطلوب) --- */
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.step-card {
+    background: var(--color-surface);
+    padding: 40px 30px;
+    border-radius: var(--radius-md);
+    position: relative;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--color-border);
+    transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+/* تأثير الـ Hover لكروت How It Works */
+.step-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px -15px rgba(230, 126, 34, 0.25);
+    border-color: var(--color-primary);
+}
+
+.step-card__number {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-border);
+    transition: color 0.3s ease;
+}
+
+.step-card:hover .step-card__number {
+    color: var(--color-primary);
+}
+
+.step-card__icon {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.step-card__title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 10px;
+}
+
+.step-card__desc {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+}
+
+/* --- CTA Banner السفلي (نسخة معدلة ومضبوطة) --- */
+.cta-banner-full {
+    position: relative;
+    width: 100%;
+    min-height: 450px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    padding: 80px 20px;
+}
+
+.cta-banner-full .cta-bg-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.cta-banner-full .cta-bg-overlay img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cta-banner-full .cta-bg-overlay::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.45);
+}
+
+.cta-banner-full .cta-content-center {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+    color: #ffffff;
+}
+
+/* تنسيق عناوين وأزرار الـ CTA لضمان وضوحها */
+.cta-banner-full .cta-banner__title {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #ffffff;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.cta-banner-full .cta-banner__subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    color: #f0f0f0;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.cta-banner-full .cta-banner__actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+    .hero-content-center .hero__title {
+        font-size: 2.5rem;
+    }
+    .hero-stats {
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+}

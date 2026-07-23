@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Browse Pets | PetConnect
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/browse.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="browse-page">
+
+    <div class="browse-header">
+        <h1>Available <span style="color: #e67e22;">Pets</span></h1>
+        <p>{{ pets.count }} pets found</p>
+    </div>
+
+    <!-- أزرار الفلترة -->
+    <div class="filter-buttons">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="Dog">Dogs</button>
+        <button class="filter-btn" data-filter="Cat">Cats</button>
+        <button class="filter-btn" data-filter="Bird">Birds</button>
+        <button class="filter-btn" data-filter="Other">Others</button>
+    </div>
+
+    <!-- شبكة الكاردات -->
+    <div class="pets-container">
+        {% for pet in pets %}
+        <div class="browse-card" data-category="{{ pet.species }}">
+            <div class="pet-image">
+                {% if pet.images.first %}
+                <img src="{{ pet.images.first.image.url }}" alt="{{ pet.name }}">
+                {% else %}
+                <img src="{% static 'images/default_pet.png' %}" alt="Default Pet">
+                {% endif %}
+            </div>
+            
+            <div class="browse-info">
+                <span class="status-badge">{{ pet.status|default:"Available" }}</span>
+
+                <h2>{{ pet.name }}</h2>
+                <p class="breed-text">{{ pet.breed }}</p>
+
+                <div class="pet-meta-row">
+                    <span>📅 {{ pet.age }} years</span>
+                    {% if pet.gender %}
+                    <span>•</span>
+                    <span>{{ pet.gender }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="pet-location">
+                    <span>📍 {{ pet.location }}</span>
+                </div>
+
+                <a href="{% url 'pet_detail' pet.id %}" class="view-btn">View Details</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-box">
+            <h2>No pets available currently 🐶</h2>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- رسالة الفلتر (مفصولة تماماً عن الشبكة لتظهر بكل تأكيد) -->
+    <div id="no-pets-message" style="display: none; text-align: center; padding: 40px; background: #ffffff; border: 2px dashed #e5e7eb; border-radius: 20px; margin-top: 30px;">
+        <h2 style="color: #e67e22; font-size: 1.25rem;">No pets found in this category 🐾</h2>
+    </div>
+
+    {% if pets.has_other_pages %}
+    <div class="pagination" style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 40px;">
+        {% if pets.has_previous %}
+            <a href="?page={{ pets.previous_page_number }}" class="btn btn--ghost" style="padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 8px; text-decoration: none; color: #374151;">Previous</a>
+        {% endif %}
+
+        <span style="font-weight: 600; color: #4b5563;">
+            Page {{ pets.number }} of {{ pets.paginator.num_pages }}
+        </span>
+
+        {% if pets.has_next %}
+            <a href="?page={{ pets.next_page_number }}" class="btn btn--ghost" style="padding: 8px 16px; border: 1px solid #d1d5db; border-radius: 8px; text-decoration: none; color: #374151;">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</section>
+
+<!-- الكود البرمجي للتحكم بالفلترة وإظهار/إخفاء الرسالة -->
+<script src="{% static 'js/browse.js' %}"></script>
+{% endblock %}

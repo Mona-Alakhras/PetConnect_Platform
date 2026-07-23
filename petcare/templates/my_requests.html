@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/my_requests.css' %}">
+
+<div class="requests-page-container">
+    
+    <!-- العنوان الرئيسي -->
+    <div class="requests-header">
+        <h1>My <span>Requests</span></h1>
+        <p>Track the status of your adoption requests</p>
+    </div>
+
+    <!-- بطاقات الإحصائيات العلوية -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h2>{{ pending_requests_count }}</h2>
+            <p>Pending</p>
+        </div>
+        <div class="stat-card">
+            <h2 class="text-approved">{{ approved_requests_count }}</h2>
+            <p>Approved</p>
+        </div>
+        <div class="stat-card">
+            <h2 class="text-rejected">{{ rejected_requests_count }}</h2>
+            <p>Rejected</p>
+        </div>
+    </div>
+
+    <!-- أزرار التصفية (Filter Buttons) -->
+    <div class="filter-buttons">
+        <button class="filter-btn active" onclick="filterRequests('all', this)">All</button>
+        <button class="filter-btn" onclick="filterRequests('Pending', this)">Pending</button>
+        <button class="filter-btn" onclick="filterRequests('Approved', this)">Approved</button>
+        <button class="filter-btn" onclick="filterRequests('Rejected', this)">Rejected</button>
+    </div>
+
+    <!-- قائمة الطلبات -->
+    <div class="requests-list">
+        {% for req in my_requests %}
+        <div class="request-card" data-status="{{ req.status }}">
+            
+            <!-- صورة الحيوان -->
+            <div class="request-pet-img">
+                {% if req.pet.images.first.image %}
+                    <img src="{{ req.pet.images.first.image.url }}" alt="{{ req.pet.name }}">
+                {% else %}
+                    <div class="no-image-placeholder">🐾</div>
+                {% endif %}
+            </div>
+
+            <!-- تفاصيل الطلب -->
+            <div class="request-details">
+                <div class="request-title-row">
+                    <h3>Request for <span>{{ req.pet.name }}</span></h3>
+                    
+                    <!-- حالة الطلب -->
+                    {% if req.status == 'Pending' %}
+                        <span class="badge badge-pending">⏳ Pending</span>
+                    {% elif req.status == 'Approved' %}
+                        <span class="badge badge-approved">✓ Approved</span>
+                    {% else %}
+                        <span class="badge badge-rejected">✕ Rejected</span>
+                    {% endif %}
+                </div>
+
+                <p class="request-meta">
+                    {{ req.pet.species }} · {{ req.created_at|date:"Y-m-d" }}
+                </p>
+
+                <p class="request-message">
+                    {{ req.message }}
+                </p>
+
+                <a href="#" class="read-more-link">Read more</a>
+            </div>
+
+        </div>
+        {% empty %}
+        <div class="empty-requests">
+            <p>No adoption requests found.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<!-- سكربت الفلترة -->
+<script>
+    function filterRequests(status, clickedBtn) {
+        const cards = document.querySelectorAll('.request-card');
+        const buttons = document.querySelectorAll('.filter-btn');
+
+        buttons.forEach(btn => btn.classList.remove('active'));
+        clickedBtn.classList.add('active');
+
+        cards.forEach(card => {
+            if (status === 'all' || card.getAttribute('data-status') === status) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}
