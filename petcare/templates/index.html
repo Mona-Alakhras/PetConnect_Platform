@@ -52,22 +52,22 @@
         <a href="{% url 'browse_pets' %}?species=Dog" class="category-card">
             <div class="category-card__icon">🐶</div>
             <div class="category-card__title">Dogs</div>
-            <div class="category-card__count">{{ dogs_count|default:"5" }} available</div>
+            <div class="category-card__count">{{ dogs_count|default:"0" }} available</div>
         </a>
         <a href="{% url 'browse_pets' %}?species=Cat" class="category-card">
             <div class="category-card__icon">🐱</div>
             <div class="category-card__title">Cats</div>
-            <div class="category-card__count">{{ cats_count|default:"4" }} available</div>
+            <div class="category-card__count">{{ cats_count|default:"0" }} available</div>
         </a>
         <a href="{% url 'browse_pets' %}?species=Bird" class="category-card">
             <div class="category-card__icon">🦜</div>
             <div class="category-card__title">Birds</div>
-            <div class="category-card__count">{{ birds_count|default:"2" }} available</div>
+            <div class="category-card__count">{{ birds_count|default:"0" }} available</div>
         </a>
         <a href="{% url 'browse_pets' %}?species=Other" class="category-card">
             <div class="category-card__icon">🐾</div>
             <div class="category-card__title">Others</div>
-            <div class="category-card__count">{{ others_count|default:"1" }} available</div>
+            <div class="category-card__count">{{ others_count|default:"0" }} available</div>
         </a>
     </div>
 </section>
