@@ -478,3 +478,16 @@
         flex-wrap: wrap;
     }
 }
+
+.forgot-link{
+    text-decoration:none;
+    color:var(--color-primary);
+    font-size:.9rem;
+    font-weight:600;
+    transition:.2s;
+}
+
+.forgot-link:hover{
+    color:var(--color-primary-dark);
+    text-decoration:underline;
+}
