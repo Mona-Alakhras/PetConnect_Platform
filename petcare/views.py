@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator  # تأكدي من استيراد هذه المكتبة في أعلى الملف
 from django.db.models import Count, Q
 from django.http import JsonResponse
+from django.contrib.auth.forms import PasswordResetForm
  
 def index(request):
     # حساب أعداد جميع الفئات بـ استعلام واحد فقط (Database Aggregation)
@@ -319,3 +320,29 @@ def my_requests_view(request):
         'rejected_requests_count': rejected_requests_count,
     }
     return render(request, 'my_requests.html', context)   
+
+@require_POST
+def api_forgot_password(request):
+
+    email = request.POST.get("email")
+
+    form = PasswordResetForm({"email": email})
+
+    if form.is_valid():
+
+        form.save(
+            request=request,
+            use_https=request.is_secure(),
+            email_template_name="registration/password_reset_email.html",
+            subject_template_name="registration/password_reset_subject.txt",
+        )
+
+        return JsonResponse({
+            "success": True,
+            "message": "Password reset link has been sent."
+        })
+
+    return JsonResponse({
+        "success": False,
+        "message": "Invalid email."
+    })    
