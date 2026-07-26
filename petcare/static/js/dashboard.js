@@ -1,159 +1,161 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const sections = document.querySelectorAll(".dashboard-section");
-    const buttons = document.querySelectorAll(".sidebar-btn");
-
-    function openSection(id) {
-        // إخفاء كل الأقسام
-        sections.forEach(section => {
-            section.style.display = "none";
-        });
-
-        // إزالة الكلاس active من كل الأزرار
-        buttons.forEach(button => {
-            button.classList.remove("active");
-        });
-
-        // إظهار القسم المطلوب إذا كان موجوداً
-        const targetSection = document.getElementById(id);
-        if (targetSection) {
-            targetSection.style.display = "block";
-        }
-
-        // تفعيل الزر الحالي المطابق للقسم
-        const targetButton = document.querySelector(`[data-section="${id}"]`);
-        if (targetButton) {
-            targetButton.classList.add("active");
-        }
+/**
+ * Owner dashboard — section tabs, photo carousels and inline request actions.
+ */
+(function () {
+  "use strict";
+ 
+  const sections = Array.from(document.querySelectorAll(".dashboard-section"));
+  const buttons = Array.from(document.querySelectorAll(".sidebar-btn"));
+  const sectionIds = sections.map(function (section) {
+    return section.id;
+  });
+ 
+  /* ---------------------------------------------------------------
+   * Section tabs
+   * ------------------------------------------------------------- */
+  function openSection(id, updateHash) {
+    if (sectionIds.indexOf(id) === -1) {
+      id = sectionIds[0];
     }
-
-    // إضافة الحدث عند الضغط على أزرار القائمة
-    buttons.forEach(button => {
-        button.addEventListener("click", function () {
-            const sectionId = this.getAttribute("data-section");
-            openSection(sectionId);
-        });
+ 
+    sections.forEach(function (section) {
+      section.hidden = section.id !== id;
     });
-
-    // افتراضياً يتم عرض قسم الـ overview عند تحميل الصفحة أول مرة
-    openSection("overview");
-});
-
-
-function moveSlide(button, direction) {
-    const carousel = button.closest('.pet-card-carousel');
-    const track = carousel.querySelector('.carousel-track');
-    const slides = track.querySelectorAll('.carousel-slide');
-    
-    // معرفة الصورة الحالية
-    let currentIndex = parseInt(carousel.getAttribute('data-index') || '0');
-    
-    currentIndex += direction;
-    
-    if (currentIndex < 0) {
-        currentIndex = slides.length - 1;
-    } else if (currentIndex >= slides.length) {
-        currentIndex = 0;
-    }
-    
-    carousel.setAttribute('data-index', currentIndex);
-    track.style.transform = `translateX(-${currentIndex * 100}%)`;
-}
-
-function toggleEditForm(id){
-
-    const form = document.getElementById(
-        "edit-form-" + id
-    );
-
-
-    if(form.style.display === "none"){
-        form.style.display = "block";
-    }
-    else{
-        form.style.display = "none";
-    }
-
-}
-console.log("dashboard.js loaded");
-
-document.addEventListener("click", function (e) {
-    console.log("SUBMIT FIRED:", e.target); 
-        // التحقق إذا كان الضغط على أزرار التصفح الخاصة بقسم My Pets
-        const paginationLink = e.target.closest('#mypets .pagination-container a');
-        if (paginationLink) {
-            e.preventDefault(); // منع إعادة تحميل الصفحة الكاملة
-            const url = paginationLink.href;
-
-            // جلب البيانات من الرابط الجديد عبر fetch
-            fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.text())
-            .then(html => {
-                // تحويل النص القادم إلى عنصر DOM مؤقت
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                
-                // استخراج قسم الـ mypets الجديد من الصفحة المحملة
-                const newMyPetsSection = doc.querySelector('#mypets');
-                
-                if (newMyPetsSection) {
-                    // استبدال محتوى قسم mypets الحالي بالمحتوى الجديد
-                    document.getElementById('mypets').innerHTML = newMyPetsSection.innerHTML;
-                }
-            })
-            .catch(error => console.error('Error loading page:', error));
-        }
+ 
+    buttons.forEach(function (button) {
+      button.classList.toggle("active", button.dataset.section === id);
     });
-
-// =======================
-// AJAX Approve / Restart Final Fix
-// =======================
-
-document.addEventListener("submit", function (e) {
-    const form = e.target;
-
-    // التأكد أن الـ form يحمل الكلاس المطلوبة
+ 
+    if (updateHash && window.history.replaceState) {
+      window.history.replaceState(null, "", "#" + id);
+    }
+  }
+ 
+  buttons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      openSection(button.dataset.section, true);
+    });
+  });
+ 
+  // Decide which panel to show on load: the URL hash wins, then a
+  // ?page= parameter (which only ever comes from the My Pets pager).
+  const hash = window.location.hash.replace("#", "");
+  const hasPageParam = new URLSearchParams(window.location.search).has("page");
+ 
+  if (sectionIds.indexOf(hash) !== -1) {
+    openSection(hash, false);
+  } else if (hasPageParam) {
+    openSection("mypets", false);
+  } else {
+    openSection(sectionIds[0], false);
+  }
+ 
+  // Keep the pager inside the My Pets panel after a reload.
+  document.querySelectorAll("#mypets .pagination__link").forEach(function (link) {
+    if (link.hash !== "#mypets") {
+      link.href = link.href.split("#")[0] + "#mypets";
+    }
+  });
+ 
+  /* ---------------------------------------------------------------
+   * Photo carousels
+   * ------------------------------------------------------------- */
+  document.querySelectorAll(".carousel-btn").forEach(function (button) {
+    button.addEventListener("click", function () {
+      const carousel = button.closest(".pet-card-carousel");
+      const track = carousel.querySelector(".carousel-track");
+      const slideCount = track.querySelectorAll(".carousel-slide").length;
+      const direction = parseInt(button.dataset.slide, 10) || 1;
+ 
+      let index = parseInt(carousel.dataset.index, 10) || 0;
+      index = (index + direction + slideCount) % slideCount;
+ 
+      carousel.dataset.index = index;
+      track.style.transform = "translateX(-" + index * 100 + "%)";
+    });
+  });
+ 
+  /* ---------------------------------------------------------------
+   * Approve / reject without a page reload
+   * ------------------------------------------------------------- */
+  document.addEventListener("submit", function (event) {
+    const form = event.target;
+ 
     if (!form.classList.contains("ajax-request-form")) {
-        return;
+      return;
     }
-
-    e.preventDefault(); // منع الانتقال لصفحة الـ JSON بالقوة
-
-    const formData = new FormData(form);
+ 
+    event.preventDefault();
+ 
+    const buttons = form.querySelectorAll("button");
+    buttons.forEach(function (button) {
+      button.disabled = true;
+    });
+ 
     const csrfInput = form.querySelector("input[name='csrfmiddlewaretoken']");
-    const csrftoken = csrfInput ? csrfInput.value : "";
-
+ 
     fetch(form.action, {
-        method: "POST",
-        body: formData,
-        headers: {
-            "X-CSRFToken": csrftoken,
-            "X-Requested-With": "XMLHttpRequest"
-        }
+      method: "POST",
+      body: new FormData(form),
+      headers: {
+        "X-CSRFToken": csrfInput ? csrfInput.value : "",
+        "X-Requested-With": "XMLHttpRequest",
+      },
     })
-    .then(response => response.json())
-    .then(data => {
-        if (!data.success) return;
-
+      .then(function (response) {
+        return response.json().then(function (data) {
+          return { ok: response.ok, data: data };
+        });
+      })
+      .then(function (result) {
         const row = form.closest("tr");
-        if (!row) return;
-
-        const statusCell = row.querySelector(".status-cell");
-        const actionCell = row.querySelector(".action-cell");
-
-        let cls = "pending";
-        if (data.status === "Approved") cls = "approved";
-        if (data.status === "Rejected") cls = "rejected";
-
-        if (statusCell) {
-            statusCell.innerHTML = `<span class="status ${cls}">${data.status}</span>`;
+ 
+        if (!result.data.success) {
+          window.alert(result.data.message || "That request could not be updated.");
+          if (row && result.data.status) {
+            renderRow(row, result.data.status);
+          } else {
+            buttons.forEach(function (button) {
+              button.disabled = false;
+            });
+          }
+          return;
         }
-        if (actionCell) {
-            actionCell.innerHTML = "—";
+ 
+        if (row) {
+          renderRow(row, result.data.status);
         }
-    })
-    .catch(error => console.error("Error:", error));
-});
+ 
+        // Approving a pet rejects the other pending requests for it, so the
+        // rest of the table needs to catch up.
+        if (result.data.pet_status === "Adopted") {
+          window.location.reload();
+        }
+      })
+      .catch(function (error) {
+        console.error("Adoption request update failed:", error);
+        window.alert("Network error — please try again.");
+        buttons.forEach(function (button) {
+          button.disabled = false;
+        });
+      });
+  });
+ 
+  function renderRow(row, status) {
+    const statusCell = row.querySelector(".status-cell");
+    const actionCell = row.querySelector(".action-cell");
+    const cssClass = status.toLowerCase();
+ 
+    if (statusCell) {
+      statusCell.textContent = "";
+      const badge = document.createElement("span");
+      badge.className = "status " + cssClass;
+      badge.textContent = status;
+      statusCell.appendChild(badge);
+    }
+ 
+    if (actionCell) {
+      actionCell.textContent = "—";
+    }
+  }
+})();
