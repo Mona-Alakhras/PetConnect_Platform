@@ -1,227 +1,201 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static icons %}
 
 {% block title %}Dashboard | PetConnect{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 {% endblock %}
 
 {% block content %}
 <div class="dashboard-wrapper">
 
-    <!-- Sidebar -->
+    <!-- ================= Sidebar ================= -->
     <aside class="dashboard-sidebar">
-        <!-- <div class="sidebar-profile">
-            <div class="avatar">
-                {{ user.first_name|slice:":1"|upper }}
-            </div>
-            <h3>{{ user.first_name }} {{ user.last_name }}</h3>
-            <p>Pet Owner</p>
-        </div> -->
-
-        <button class="sidebar-btn active" data-section="overview">
-            <i class="bi bi-house-door-fill"></i> Dashboard
+        <button class="sidebar-btn active inline-icon" data-section="overview">
+            {% icon "layout-dashboard" %} Dashboard
         </button>
-        <button class="sidebar-btn" data-section="mypets">
-            <i class="bi bi-heart-fill"></i> My Pets
+        <button class="sidebar-btn inline-icon" data-section="mypets">
+            {% icon "paw" %} My Pets
         </button>
-        <button class="sidebar-btn" data-section="addpet">
-            <i class="bi bi-plus-circle-fill"></i> Add Pet
+        <button class="sidebar-btn inline-icon" data-section="addpet">
+            {% icon "plus-circle" %} Add Pet
         </button>
-        <button class="sidebar-btn" data-section="requests">
-            <i class="bi bi-file-earmark-text-fill"></i> Requests
+        <button class="sidebar-btn inline-icon" data-section="requests">
+            {% icon "clipboard-list" %} Requests
         </button>
     </aside>
 
     <!-- ================= Main ================= -->
     <main class="dashboard-content">
-        <!-- Dashboard -->
+
+        <!-- ---------- Overview ---------- -->
         <section id="overview" class="dashboard-section">
             <div class="welcome-card">
                 <div>
-                    <h1>
-                        Welcome back,
-                        {{ user.first_name }}
-                        👋
-                    </h1>
-                    <p>
-                        Manage your pets and adoption requests all from one place.
-                    </p>
+                    <h1>Welcome back, {{ user.first_name|default:user.username }}</h1>
+                    <p>Manage your pets and adoption requests all from one place.</p>
                 </div>
             </div>
 
-            <!-- Statistics -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon">🐾</div>
+                    <div class="stat-icon chip--amber">{% icon "paw" %}</div>
                     <h2>{{ total_pets }}</h2>
                     <span>Total Pets</span>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon">📋</div>
+                    <div class="stat-icon chip--sky">{% icon "clock" %}</div>
                     <h2>{{ active_requests_count }}</h2>
                     <span>Pending Requests</span>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon">✅</div>
+                    <div class="stat-icon chip--green">{% icon "check-circle" %}</div>
                     <h2>{{ approved_requests_count }}</h2>
                     <span>Approved</span>
                 </div>
             </div>
 
-            <!-- Recent Pets -->
             <div class="section-title">
                 <h2>Recent Pets</h2>
                 <p>Your latest listed pets</p>
             </div>
+
             <div class="recent-pets-grid">
-                {% for pet in pets|slice:":3" %}
+                {% for pet in recent_pets %}
                 <div class="pet-card">
-                    {% with image=pet.images.first %}
-                    {% if image and image.image %}
-                    <img src="{{ image.image.url }}" alt="{{ pet.name }}">
+                    {% with image=pet.primary_image %}
+                    {% if image %}
+                    <img src="{{ image.image.url }}" alt="{{ pet.name }}" loading="lazy">
                     {% else %}
-                    <img src="{% static 'images/default_pet.png' %}" alt="Default Pet">
+                    <div class="pet-placeholder pet-placeholder--wide">{% icon "image" %}</div>
                     {% endif %}
                     {% endwith %}
                     <div class="pet-card-body">
-                        <h3>{{ pet.name }}</h3>
+                        <h3>{{ pet.name|title }}</h3>
                         <p>{{ pet.breed }}</p>
                         <span>{{ pet.status }}</span>
                     </div>
                 </div>
-
                 {% empty %}
                 <div class="empty-box">
-                    <h3>No Pets Yet 🐶</h3>
-                    <p>
-                        Start by adding your first pet.
-                    </p>
+                    <span class="empty-box__icon">{% icon "paw" %}</span>
+                    <h3>No Pets Yet</h3>
+                    <p>Start by adding your first pet.</p>
                 </div>
                 {% endfor %}
             </div>
-
         </section>
 
-
-        <!-- My Pets -->
-        <section id="mypets" class="dashboard-section" style="display:none;">
+        <!-- ---------- My Pets ---------- -->
+        <section id="mypets" class="dashboard-section" hidden>
             <div class="section-header">
                 <div>
-                    <h1>My Pets 🐾</h1>
-                    <p>
-                        Here are your listed pets for adoption.
-                    </p>
+                    <h1>My Pets</h1>
+                    <p>Here are your listed pets for adoption.</p>
                 </div>
             </div>
+
             <div class="pets-grid">
-                <!-- تم إزالة الـ slice ليقوم الـ Paginator بعرض عناصر الصفحة الحالية فقط -->
                 {% for pet in pets %}
                 <div class="pet-item">
 
-                    <!-- السلايدر الخاص بالصور -->
                     <div class="pet-card-carousel" data-index="0">
                         <div class="carousel-track">
-                            {% if pet.images.all %}
                             {% for img in pet.images.all %}
                             <div class="carousel-slide">
-                                {% if img.image %}
-                                <img src="{{ img.image.url }}" alt="{{ pet.name }}">
-                                {% else %}
-                                <div
-                                    style="width: 100%; height: 180px; background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 32px;">
-                                    🐾</div>
-                                {% endif %}
+                                <img src="{{ img.image.url }}" alt="{{ pet.name }}" loading="lazy">
+                            </div>
+                            {% empty %}
+                            <div class="carousel-slide">
+                                <div class="carousel-slide__empty">{% icon "image" %}</div>
                             </div>
                             {% endfor %}
-                            {% else %}
-                            <div class="carousel-slide">
-                                <div
-                                    style="width: 100%; height: 180px; background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 32px;">
-                                    🐾</div>
-                            </div>
-                            {% endif %}
                         </div>
 
-                        {% if pet.images.count > 1 %}
-                        <button class="carousel-btn carousel-prev" onclick="moveSlide(this, -1)">&#10094;</button>
-                        <button class="carousel-btn carousel-next" onclick="moveSlide(this, 1)">&#10095;</button>
+                        {% if pet.images.all|length > 1 %}
+                        <button type="button" class="carousel-btn carousel-prev" data-slide="-1"
+                            aria-label="Previous photo">{% icon "chevron-left" %}</button>
+                        <button type="button" class="carousel-btn carousel-next" data-slide="1"
+                            aria-label="Next photo">{% icon "chevron-right" %}</button>
                         {% endif %}
                     </div>
 
                     <div class="pet-info">
-                        <h3>{{ pet.name }}</h3>
+                        <h3>{{ pet.name|title }}</h3>
                         <p>{{ pet.species }}</p>
                         <p>{{ pet.breed }}</p>
-                        <p>📍 {{ pet.location }}</p>
+                        <p class="inline-icon">{% icon "map-pin" %}{{ pet.location }}</p>
                         <span class="status">{{ pet.status }}</span>
                     </div>
 
                     <div class="pet-actions">
-                        <button class="delete-btn">
-                            <i class="bi bi-trash-fill"></i> Delete
-                        </button>
+                        <form method="POST" action="{% url 'delete_pet' pet.id %}"
+                            data-confirm="Delete {{ pet.name }}? This also removes its photos and adoption requests.">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-btn inline-icon">
+                                {% icon "trash" %} Delete
+                            </button>
+                        </form>
                     </div>
 
                 </div>
                 {% empty %}
                 <div class="empty-state">
-                    <img src="{% static 'images/empty_pet.png' %}">
+                    <span class="empty-state__icon">{% icon "paw" %}</span>
                     <h2>No Pets Yet</h2>
                     <p>Add your first pet and start receiving adoption requests.</p>
                 </div>
                 {% endfor %}
             </div>
 
-            <!-- أزرار التنقل بين الصفحات (Pagination Controls) -->
             {% if pets.has_other_pages %}
-            <div class="pagination-container"
-                style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 30px;">
+            <nav class="pagination" aria-label="My pets pagination">
                 {% if pets.has_previous %}
-                <a href="?page={{ pets.previous_page_number }}" class="primary-btn"
-                    style="padding: 8px 16px; text-decoration: none; border-radius: 6px; background-color: #f97316; color: white;">Previous</a>
+                <a class="pagination__link inline-icon" href="?page={{ pets.previous_page_number }}">
+                    {% icon "chevron-left" %} Previous
+                </a>
                 {% endif %}
 
-                <span style="font-weight: bold; color: #4a5568;">
+                <span class="pagination__status">
                     Page {{ pets.number }} of {{ pets.paginator.num_pages }}
                 </span>
 
                 {% if pets.has_next %}
-                <a href="?page={{ pets.next_page_number }}" class="primary-btn"
-                    style="padding: 8px 16px; text-decoration: none; border-radius: 6px; background-color: #f97316; color: white;">Next</a>
+                <a class="pagination__link inline-icon" href="?page={{ pets.next_page_number }}">
+                    Next {% icon "chevron-right" %}
+                </a>
                 {% endif %}
-            </div>
+            </nav>
             {% endif %}
-
         </section>
 
-        <!-- Add Pet -->
-
-        <section id="addpet" class="dashboard-section" style="display:none;">
+        <!-- ---------- Add Pet ---------- -->
+        <section id="addpet" class="dashboard-section" hidden>
             <div class="section-header">
                 <h2>Add New Pet</h2>
                 <p>Fill in the information below to list your pet for adoption.</p>
             </div>
+
             <div class="dashboard-card">
                 <form method="POST" action="{% url 'dashboard' %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Pet Name</label>
-                            <input type="text" name="name" class="form-control" placeholder="Max" required>
+                            <label for="pet-name">Pet Name</label>
+                            <input id="pet-name" type="text" name="name" class="form-control" placeholder="Max"
+                                maxlength="100" required>
                         </div>
                         <div class="form-group">
-                            <label>Breed</label>
-                            <input type="text" name="breed" class="form-control" placeholder="Golden Retriever"
-                                required>
+                            <label for="pet-breed">Breed</label>
+                            <input id="pet-breed" type="text" name="breed" class="form-control"
+                                placeholder="Golden Retriever" maxlength="100" required>
                         </div>
                         <div class="form-group">
-                            <label>Species</label>
-                            <select name="species" class="form-select" required>
+                            <label for="pet-species">Species</label>
+                            <select id="pet-species" name="species" class="form-select" required>
                                 <option value="">Select Species</option>
                                 <option value="Dog">Dog</option>
                                 <option value="Cat">Cat</option>
@@ -230,16 +204,18 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Age</label>
-                            <input type="text" name="age" class="form-control" placeholder="2 years">
+                            <label for="pet-age">Age</label>
+                            <input id="pet-age" type="text" name="age" class="form-control" placeholder="2 years"
+                                maxlength="50" required>
                         </div>
                         <div class="form-group">
-                            <label>Location</label>
-                            <input type="text" name="location" class="form-control" placeholder="Gaza">
+                            <label for="pet-location">Location</label>
+                            <input id="pet-location" type="text" name="location" class="form-control" placeholder="Gaza"
+                                maxlength="100" required>
                         </div>
                         <div class="form-group">
-                            <label>Status</label>
-                            <select name="status" class="form-select">
+                            <label for="pet-status">Status</label>
+                            <select id="pet-status" name="status" class="form-select">
                                 <option value="Available">Available</option>
                                 <option value="Adopted">Adopted</option>
                             </select>
@@ -247,31 +223,34 @@
                     </div>
 
                     <div class="form-group mt-4">
-                        <label>Pet Images (Maximum 3)</label>
-                        <input type="file" name="images" class="form-control" multiple accept="image/*">
+                        <label for="pet-images" class="inline-icon">{% icon "upload" %} Pet Images</label>
+                        <input id="pet-images" type="file" name="images" class="form-control" multiple
+                            accept="image/jpeg,image/png,image/webp,image/gif">
                         <small class="text-muted">
-                            JPG, PNG or WEBP • Maximum 3 images
+                            JPG, PNG, WEBP or GIF &middot; up to {{ max_images }} images &middot; max 5 MB each
                         </small>
                     </div>
+
                     <div class="mt-4">
-                        <button class="primary-btn save-btn" type="submit">
-                            Add Pet
+                        <button class="primary-btn save-btn inline-icon" type="submit">
+                            {% icon "plus-circle" %} Add Pet
                         </button>
                     </div>
                 </form>
             </div>
         </section>
 
-        <!-- Requests -->
-        <section id="requests" class="dashboard-section" style="display:none;">
+        <!-- ---------- Requests ---------- -->
+        <section id="requests" class="dashboard-section" hidden>
             <div class="section-header">
                 <h2>Adoption Requests</h2>
                 <p>Manage adoption requests for your pets.</p>
             </div>
+
             <div class="dashboard-card">
                 {% if incoming_requests %}
-                <div class="table-responsive" style="overflow-x:auto; width:100%;">
-                    <table class="requests-table" style="width:100%; border-collapse:collapse;">
+                <div class="table-responsive">
+                    <table class="requests-table">
                         <thead>
                             <tr>
                                 <th>Pet</th>
@@ -283,63 +262,60 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for request in incoming_requests %}
+                            {% for adoption in incoming_requests %}
                             <tr>
                                 <td>
                                     <div class="pet-cell">
-                                        {% if request.pet.images.first %}
-                                        <img src="{{ request.pet.images.first.image.url }}">
-                                        {% elif request.pet.image %}
-                                        <img src="{{ request.pet.image.url }}">
+                                        {% with image=adoption.pet.primary_image %}
+                                        {% if image %}
+                                        <img src="{{ image.image.url }}" alt="{{ adoption.pet.name }}" loading="lazy">
                                         {% else %}
-                                        <div class="pet-placeholder">🐾</div>
+                                        <div class="pet-placeholder">{% icon "paw" %}</div>
                                         {% endif %}
-                                        <span>{{ request.pet.name }}</span>
+                                        {% endwith %}
+                                        <span>{{ adoption.pet.name|title }}</span>
                                     </div>
                                 </td>
                                 <td>
-                                    <strong>{{ request.adopter.username }}</strong><br>
-                                    <small>{{ request.adopter.email }}</small>
+                                    <strong>{{ adoption.adopter.get_full_name|default:adoption.adopter.username }}</strong><br>
+                                    <small>{{ adoption.adopter.email }}</small>
                                 </td>
-                                <td>
-                                    {{ request.message|truncatechars:60 }}
-                                </td>
-                                <!-- Status -->
+                                <td>{{ adoption.message|truncatechars:60 }}</td>
+
                                 <td class="status-cell">
-                                    {% if request.status == "Pending" %}
-                                    <span class="status pending">Pending</span>
-                                    {% elif request.status == "Approved" %}
-                                    <span class="status approved">Approved</span>
+                                    {% if adoption.status == "Pending" %}
+                                    <span class="status pending inline-icon">{% icon "clock" %} Pending</span>
+                                    {% elif adoption.status == "Approved" %}
+                                    <span class="status approved inline-icon">{% icon "check" %} Approved</span>
                                     {% else %}
-                                    <span class="status rejected">Rejected</span>
+                                    <span class="status rejected inline-icon">{% icon "x" %} Rejected</span>
                                     {% endif %}
                                 </td>
-                                <td>
-                                    {{ request.created_at|date:"d M Y" }}
-                                </td>
-                                <!-- Actions -->
+
+                                <td>{{ adoption.created_at|date:"d M Y" }}</td>
+
                                 <td class="action-cell">
-                                    {% if request.status == "Pending" %}
+                                    {% if adoption.status == "Pending" %}
                                     <div class="action-buttons">
                                         <form method="POST"
-                                            action="{% url 'update_request_status' request.id 'Approved' %}"
+                                            action="{% url 'update_request_status' adoption.id 'Approved' %}"
                                             class="ajax-request-form">
                                             {% csrf_token %}
-                                            <button type="submit" class="approve-btn">
-                                                Approve
+                                            <button type="submit" class="approve-btn inline-icon">
+                                                {% icon "check" %} Approve
                                             </button>
                                         </form>
                                         <form method="POST"
-                                            action="{% url 'update_request_status' request.id 'Rejected' %}"
+                                            action="{% url 'update_request_status' adoption.id 'Rejected' %}"
                                             class="ajax-request-form">
                                             {% csrf_token %}
-                                            <button type="submit" class="reject-btn">
-                                                Reject
+                                            <button type="submit" class="reject-btn inline-icon">
+                                                {% icon "x" %} Reject
                                             </button>
                                         </form>
                                     </div>
                                     {% else %}
-                                    —
+                                    <span class="text-muted">&mdash;</span>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -349,23 +325,17 @@
                 </div>
                 {% else %}
                 <div class="empty-state">
-                    <div class="empty-icon">
-                        📋
-                    </div>
+                    <span class="empty-state__icon">{% icon "inbox" %}</span>
                     <h3>No Adoption Requests Yet</h3>
-                    <p>
-                        Adoption requests for your pets will appear here.
-                    </p>
-
+                    <p>Adoption requests for your pets will appear here.</p>
                 </div>
                 {% endif %}
             </div>
         </section>
     </main>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/dashboard.js' %}"></script>
+<script src="{% static 'js/dashboard.js' %}" defer></script>
 {% endblock %}

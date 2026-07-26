@@ -1,124 +1,165 @@
 {% extends "base.html" %}
-{% load static %}
-
-{% block title %}PetConnect · {{ pet.name }}{% endblock %}
-
+{% load static icons %}
+ 
+{% block title %}PetConnect · {{ pet.name|title }}{% endblock %}
+ 
+{% block meta_description %}Meet {{ pet.name|title }}, a {{ pet.age }} {{ pet.breed }} in {{ pet.location }} looking for a forever home.{% endblock %}
+ 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/pet_detail.css' %}">
 {% endblock %}
-
+ 
 {% block content %}
 <div class="detail-container">
-    <!-- زر الرجوع -->
-    <a href="{% url 'browse_pets' %}" class="back-link">
-        ← Back to listings
+    <a href="{% url 'browse_pets' %}" class="back-link inline-icon">
+        {% icon "arrow-left" %} Back to listings
     </a>
-
+ 
     <div class="pet-detail-grid">
-        <!-- قسم الصور (يسار) -->
+        <!-- Gallery -->
         <div class="pet-gallery">
             <div class="pet-gallery__main">
-                {% if pet.images.first %}
-                <img src="{{ pet.images.first.image.url }}" alt="{{ pet.name }}">
+                {% with image=pet.primary_image %}
+                {% if image %}
+                <img id="galleryMain" src="{{ image.image.url }}" alt="{{ pet.name }}">
                 {% else %}
-                <img src="{% static 'images/default_pet.png' %}" alt="{{ pet.name }}">
+                <div class="no-image-placeholder">{% icon "paw" %}</div>
                 {% endif %}
+                {% endwith %}
             </div>
-
-            {% if pet.images.all.count > 1 %}
+ 
+            {% if pet.images.all|length > 1 %}
             <div class="pet-gallery__thumbnails">
                 {% for img in pet.images.all %}
-                <img src="{{ img.image.url }}" alt="Thumbnail">
+                <button type="button" class="pet-gallery__thumb {% if forloop.first %}is-active{% endif %}"
+                    data-full="{{ img.image.url }}" aria-label="View photo {{ forloop.counter }}">
+                    <img src="{{ img.image.url }}" alt="" loading="lazy">
+                </button>
                 {% endfor %}
             </div>
             {% endif %}
         </div>
-
-        <!-- قسم المعلومات والخصائص (يمين) -->
+ 
+        <!-- Details -->
         <div class="pet-info">
             <div class="pet-info__header">
-                <span class="status-badge">
+                <span class="status-badge inline-icon">
+                    {% if pet.is_available %}{% icon "check-circle" %}{% else %}{% icon "home" %}{% endif %}
                     {{ pet.status }}
                 </span>
                 <h1 class="pet-info__name">{{ pet.name|title }}</h1>
                 <p class="pet-info__breed">{{ pet.breed }}</p>
             </div>
-
-            <!-- شبكة التفاصيل (المعلومات الموجودة في الـ Model فقط) -->
+ 
             <div class="pet-specs-grid" style="grid-template-columns: 1fr 1fr;">
                 <div class="spec-item">
-                    <div class="spec-item__icon">🐾</div>
+                    <div class="spec-item__icon chip--amber">{% icon "paw" %}</div>
                     <div class="spec-item__content">
                         <span>Species</span>
                         <strong>{{ pet.species }}</strong>
                     </div>
                 </div>
-
+ 
                 <div class="spec-item">
-                    <div class="spec-item__icon">📅</div>
+                    <div class="spec-item__icon chip--sky">{% icon "calendar" %}</div>
                     <div class="spec-item__content">
                         <span>Age</span>
-                        <strong>{{ pet.age }} years</strong>
+                        <strong>{{ pet.age }}</strong>
                     </div>
                 </div>
-
+ 
                 <div class="spec-item" style="grid-column: span 2;">
-                    <div class="spec-item__icon">📍</div>
+                    <div class="spec-item__icon chip--rose">{% icon "map-pin" %}</div>
                     <div class="spec-item__content">
                         <span>Location</span>
                         <strong>{{ pet.location }}</strong>
                     </div>
                 </div>
+ 
+                <div class="spec-item" style="grid-column: span 2;">
+                    <div class="spec-item__icon chip--violet">{% icon "user" %}</div>
+                    <div class="spec-item__content">
+                        <span>Listed by</span>
+                        <strong>{{ pet.owner.first_name|default:pet.owner.username }}</strong>
+                    </div>
+                </div>
             </div>
-
-            <!-- زر طلب التبني -->
+ 
             <div class="pet-actions">
-                {% if user.is_authenticated %}
-                <button type="button" class="adopt-btn" onclick="openModal()">Adopt Now</button>
+                {% if not pet.is_available %}
+                <button type="button" class="adopt-btn inline-icon" disabled>
+                    {% icon "home" %} Already Adopted
+                </button>
+                {% elif not user.is_authenticated %}
+                <a href="{% url 'login' %}?next={{ request.path }}" class="adopt-btn inline-icon">
+                    {% icon "log-in" %} Log In to Adopt
+                </a>
+                {% elif is_own_pet %}
+                <button type="button" class="adopt-btn inline-icon" disabled>
+                    {% icon "info" %} This is your listing
+                </button>
+                {% elif already_requested %}
+                <button type="button" class="adopt-btn inline-icon" disabled>
+                    {% icon "check-circle" %} Request Already Sent
+                </button>
                 {% else %}
-                <a href="{% url 'login' %}" class="adopt-btn">Log In to Adopt</a>
+                <button type="button" class="adopt-btn inline-icon" data-open-modal="adoptModal">
+                    {% icon "heart" %} Adopt Now
+                </button>
                 {% endif %}
             </div>
-            <div id="adoptModal" class="modal-overlay">
+ 
+            {% if pet.is_available and user.is_authenticated and not is_own_pet and not already_requested %}
+            <div id="adoptModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="adoptModalTitle"
+                hidden>
                 <div class="modal-content">
-
+ 
                     <div class="modal-header">
-                        <h2 class="modal-title">Adopt {{ pet.name|title }}</h2>
-                        <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
+                        <h2 class="modal-title" id="adoptModalTitle">Adopt {{ pet.name|title }}</h2>
+                        <button type="button" class="modal-close" data-close-modal aria-label="Close dialog">
+                            {% icon "x" %}
+                        </button>
                     </div>
-
+ 
                     <form method="POST" action="{% url 'adopt_pet' pet.id %}">
                         {% csrf_token %}
-
+ 
                         <div class="modal-form-group">
                             <label class="modal-label">Your Name</label>
                             <input type="text" class="modal-input"
                                 value="{{ user.get_full_name|default:user.username }}" disabled>
                         </div>
-
+ 
                         <div class="modal-form-group">
                             <label class="modal-label">Email</label>
                             <input type="email" class="modal-input" value="{{ user.email }}" disabled>
                         </div>
-
+ 
                         <div class="modal-form-group">
-                            <label class="modal-label">Why do you want to adopt {{ pet.name|title }}?</label>
-                            <textarea name="message" class="modal-textarea" rows="4" required
+                            <label class="modal-label" for="adoptMessage">
+                                Why do you want to adopt {{ pet.name|title }}?
+                            </label>
+                            <textarea id="adoptMessage" name="message" class="modal-textarea" rows="4" required
+                                minlength="20"
                                 placeholder="Tell us about your home, experience with pets, and why you would be a great match..."></textarea>
                         </div>
-
+ 
                         <div class="modal-actions">
-                            <button type="button" class="modal-btn-cancel" onclick="closeModal()">Cancel</button>
-                            <button type="submit" class="modal-btn-submit">Submit Request</button>
+                            <button type="button" class="modal-btn-cancel" data-close-modal>Cancel</button>
+                            <button type="submit" class="modal-btn-submit inline-icon">
+                                {% icon "send" %} Submit Request
+                            </button>
                         </div>
                     </form>
-
+ 
                 </div>
             </div>
+            {% endif %}
         </div>
     </div>
 </div>
 {% endblock %}
+ 
 {% block extra_js %}
-<script src="{% static 'js/pet_detail.js' %}"></script>
+<script src="{% static 'js/pet_detail.js' %}" defer></script>
 {% endblock %}

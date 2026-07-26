@@ -1,103 +1,114 @@
 {% extends "base.html" %}
-{% load static %}
-
+{% load static icons %}
+ 
 {% block title %}Register · PetConnect{% endblock %}
-
+ 
 {% block content %}
-<main class="auth-shell">
+<div class="auth-shell">
   <div class="auth-shell__visual">
     <img src="{% static 'images/hero.png' %}" alt="Adopter smiling with her cat and dog at home">
   </div>
-
+ 
   <div class="auth-shell__form-wrap">
     <div class="auth-card">
-
+ 
       <div class="auth-tabs">
         <a href="{% url 'login' %}">SIGN IN</a>
         <a href="{% url 'register' %}" class="is-active">REGISTER</a>
       </div>
-
-
+ 
       <h1 class="auth-card__title">Create Account</h1>
       <p class="auth-card__subtitle">Join PetConnect and start your journey</p>
-
-      {% if messages %}
-      <ul class="messages">
-        {% for message in messages %}
-        <li class="{{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-
+ 
       <form method="POST" action="{% url 'register' %}" novalidate>
         {% csrf_token %}
-
+ 
         <div class="field-row">
-          <div class="field">
+          <div class="field {% if errors.first_name %}field--invalid{% endif %}">
             <label for="first_name">First Name</label>
-            <input type="text" id="first_name" name="first_name" placeholder="First name" required>
+            <input type="text" id="first_name" name="first_name" placeholder="First name"
+              value="{{ form_data.first_name|default:'' }}" autocomplete="given-name" required>
+            {% if errors.first_name %}<span class="field__error">{{ errors.first_name }}</span>{% endif %}
           </div>
-          <div class="field">
+          <div class="field {% if errors.last_name %}field--invalid{% endif %}">
             <label for="last_name">Last Name</label>
-            <input type="text" id="last_name" name="last_name" placeholder="Last name" required>
+            <input type="text" id="last_name" name="last_name" placeholder="Last name"
+              value="{{ form_data.last_name|default:'' }}" autocomplete="family-name" required>
+            {% if errors.last_name %}<span class="field__error">{{ errors.last_name }}</span>{% endif %}
           </div>
         </div>
-
-        <div class="field">
+ 
+        <div class="field {% if errors.username %}field--invalid{% endif %}">
           <label for="username">Username</label>
-          <input type="text" id="username" name="username" placeholder="Enter your username" required>
+          <input type="text" id="username" name="username" placeholder="Enter your username"
+            value="{{ form_data.username|default:'' }}" autocomplete="username" required>
+          {% if errors.username %}<span class="field__error">{{ errors.username }}</span>{% endif %}
         </div>
-
-        <div class="field">
+ 
+        <div class="field {% if errors.email %}field--invalid{% endif %}">
           <label for="email">Email Address</label>
-          <input type="email" id="email" name="email" placeholder="you@example.com" required>
+          <input type="email" id="email" name="email" placeholder="you@example.com"
+            value="{{ form_data.email|default:'' }}" autocomplete="email" required>
+          {% if errors.email %}<span class="field__error">{{ errors.email }}</span>{% endif %}
         </div>
-
-        <div class="field">
+ 
+        <div class="field {% if errors.phone %}field--invalid{% endif %}">
           <label for="phone">Phone <span class="field-hint" style="display:inline">(optional)</span></label>
-          <input type="tel" id="phone" name="phone" placeholder="e.g. 0599123456">
+          <input type="tel" id="phone" name="phone" placeholder="e.g. 0599123456"
+            value="{{ form_data.phone|default:'' }}" autocomplete="tel">
+          {% if errors.phone %}<span class="field__error">{{ errors.phone }}</span>{% endif %}
         </div>
-
+ 
         <div class="field-row">
-          <div class="field">
+          <div class="field {% if errors.password %}field--invalid{% endif %}">
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <input type="password" id="password" name="password" placeholder="At least 8 characters"
+              autocomplete="new-password" required>
+            {% if errors.password %}<span class="field__error">{{ errors.password }}</span>{% endif %}
           </div>
-          <div class="field">
+          <div class="field {% if errors.confirm_password %}field--invalid{% endif %}">
             <label for="confirm_password">Confirm</label>
             <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter password"
-              required>
+              autocomplete="new-password" required>
+            {% if errors.confirm_password %}<span class="field__error">{{ errors.confirm_password }}</span>{% endif %}
           </div>
         </div>
-
-        <label class="field" style="margin-bottom:8px;">Account Type</label>
+ 
+        <span class="field" style="margin-bottom:8px;">Account Type</span>
         <div class="role-group">
           <label class="role-option">
-            <input type="radio" name="role" value="Adopter" required>
+            <input type="radio" name="role" value="Adopter" {% if form_data.role == 'Adopter' %}checked{% endif %}
+              required>
             <div class="role-option__card">
-              <div class="role-option__icon">🐾</div>
+              <div class="role-option__icon chip--amber">{% icon "paw" %}</div>
               <div class="role-option__title">Adopter</div>
-              <div class="role-option__desc">Browse & adopt pets</div>
+              <div class="role-option__desc">Browse &amp; adopt pets</div>
             </div>
           </label>
-
+ 
           <label class="role-option">
-            <input type="radio" name="role" value="Owner" required>
+            <input type="radio" name="role" value="Owner" {% if form_data.role == 'Owner' %}checked{% endif %} required>
             <div class="role-option__card">
-              <div class="role-option__icon">🏠</div>
+              <div class="role-option__icon chip--green">{% icon "home" %}</div>
               <div class="role-option__title">Pet Owner</div>
               <div class="role-option__desc">List pets for adoption</div>
             </div>
           </label>
         </div>
-
-        <button type="submit" class="btn btn--primary btn--block">Create Account</button>
+        {% if errors.role %}<span class="field__error">{{ errors.role }}</span>{% endif %}
+ 
+        <button type="submit" class="btn btn--primary btn--block inline-icon">
+          {% icon "user" %} Create Account
+        </button>
       </form>
-
+ 
       <p class="auth-card__footer">
-        Already have an account? <a href="{% url 'login' %}">Sign in →</a>
+        Already have an account?
+        <a href="{% url 'login' %}" class="inline-icon">Sign in {% icon "arrow-right" %}</a>
       </p>
     </div>
   </div>
-</main>
+</div>
 {% endblock %}
+ 
+ 

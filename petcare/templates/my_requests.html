@@ -1,107 +1,102 @@
 {% extends 'base.html' %}
-{% load static %}
-
-{% block content %}
+{% load static icons %}
+ 
+{% block title %}My Requests | PetConnect{% endblock %}
+ 
+{% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/my_requests.css' %}">
-
+{% endblock %}
+ 
+{% block content %}
 <div class="requests-page-container">
-    
-    <!-- العنوان الرئيسي -->
+ 
     <div class="requests-header">
         <h1>My <span>Requests</span></h1>
         <p>Track the status of your adoption requests</p>
     </div>
-
-    <!-- بطاقات الإحصائيات العلوية -->
+ 
     <div class="stats-grid">
         <div class="stat-card">
             <h2>{{ pending_requests_count }}</h2>
-            <p>Pending</p>
+            <p class="inline-icon">{% icon "clock" class="icon icon--primary" %} Pending</p>
         </div>
         <div class="stat-card">
             <h2 class="text-approved">{{ approved_requests_count }}</h2>
-            <p>Approved</p>
+            <p class="inline-icon">{% icon "check-circle" class="icon icon--success" %} Approved</p>
         </div>
         <div class="stat-card">
             <h2 class="text-rejected">{{ rejected_requests_count }}</h2>
-            <p>Rejected</p>
+            <p class="inline-icon">{% icon "x-circle" class="icon icon--danger" %} Rejected</p>
         </div>
     </div>
-
-    <!-- أزرار التصفية (Filter Buttons) -->
-    <div class="filter-buttons">
-        <button class="filter-btn active" onclick="filterRequests('all', this)">All</button>
-        <button class="filter-btn" onclick="filterRequests('Pending', this)">Pending</button>
-        <button class="filter-btn" onclick="filterRequests('Approved', this)">Approved</button>
-        <button class="filter-btn" onclick="filterRequests('Rejected', this)">Rejected</button>
+ 
+    <div class="filter-buttons" role="tablist">
+        <button type="button" class="filter-btn active" data-filter="all">All</button>
+        <button type="button" class="filter-btn" data-filter="Pending">Pending</button>
+        <button type="button" class="filter-btn" data-filter="Approved">Approved</button>
+        <button type="button" class="filter-btn" data-filter="Rejected">Rejected</button>
     </div>
-
-    <!-- قائمة الطلبات -->
+ 
     <div class="requests-list">
         {% for req in my_requests %}
         <div class="request-card" data-status="{{ req.status }}">
-            
-            <!-- صورة الحيوان -->
+ 
             <div class="request-pet-img">
-                {% if req.pet.images.first.image %}
-                    <img src="{{ req.pet.images.first.image.url }}" alt="{{ req.pet.name }}">
+                {% with image=req.pet.primary_image %}
+                {% if image %}
+                <img src="{{ image.image.url }}" alt="{{ req.pet.name }}" loading="lazy">
                 {% else %}
-                    <div class="no-image-placeholder">🐾</div>
+                <div class="no-image-placeholder">{% icon "paw" %}</div>
                 {% endif %}
+                {% endwith %}
             </div>
-
-            <!-- تفاصيل الطلب -->
+ 
             <div class="request-details">
                 <div class="request-title-row">
-                    <h3>Request for <span>{{ req.pet.name }}</span></h3>
-                    
-                    <!-- حالة الطلب -->
+                    <h3>Request for <a href="{% url 'pet_detail' req.pet.id %}"><span>{{ req.pet.name|title }}</span></a></h3>
+ 
                     {% if req.status == 'Pending' %}
-                        <span class="badge badge-pending">⏳ Pending</span>
+                    <span class="badge badge-pending inline-icon">{% icon "clock" %} Pending</span>
                     {% elif req.status == 'Approved' %}
-                        <span class="badge badge-approved">✓ Approved</span>
+                    <span class="badge badge-approved inline-icon">{% icon "check" %} Approved</span>
                     {% else %}
-                        <span class="badge badge-rejected">✕ Rejected</span>
+                    <span class="badge badge-rejected inline-icon">{% icon "x" %} Rejected</span>
                     {% endif %}
                 </div>
-
-                <p class="request-meta">
-                    {{ req.pet.species }} · {{ req.created_at|date:"Y-m-d" }}
+ 
+                <p class="request-meta inline-icon">
+                    {% icon "paw" %} {{ req.pet.species }}
+                    <span aria-hidden="true">&middot;</span>
+                    {% icon "calendar" %} {{ req.created_at|date:"Y-m-d" }}
                 </p>
-
-                <p class="request-message">
-                    {{ req.message }}
-                </p>
-
-                <a href="#" class="read-more-link">Read more</a>
+ 
+                <p class="request-message">{{ req.message }}</p>
+ 
+                <a href="{% url 'pet_detail' req.pet.id %}" class="read-more-link inline-icon">
+                    View pet {% icon "arrow-right" %}
+                </a>
             </div>
-
+ 
         </div>
         {% empty %}
         <div class="empty-requests">
-            <p>No adoption requests found.</p>
+            <span class="empty-state__icon">{% icon "inbox" %}</span>
+            <h3>No adoption requests yet</h3>
+            <p>Browse available pets and send your first request.</p>
+            <a href="{% url 'browse_pets' %}" class="btn btn--primary inline-icon">
+                {% icon "search" %} Browse Pets
+            </a>
         </div>
         {% endfor %}
     </div>
-
+ 
+    <p id="noMatchingRequests" class="empty-requests" hidden>
+        No requests with this status.
+    </p>
+ 
 </div>
-
-<!-- سكربت الفلترة -->
-<script>
-    function filterRequests(status, clickedBtn) {
-        const cards = document.querySelectorAll('.request-card');
-        const buttons = document.querySelectorAll('.filter-btn');
-
-        buttons.forEach(btn => btn.classList.remove('active'));
-        clickedBtn.classList.add('active');
-
-        cards.forEach(card => {
-            if (status === 'all' || card.getAttribute('data-status') === status) {
-                card.style.display = 'flex';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    }
-</script>
+{% endblock %}
+ 
+{% block extra_js %}
+<script src="{% static 'js/my_requests.js' %}" defer></script>
 {% endblock %}
