@@ -171,18 +171,6 @@ Production security headers auto-enabled when DEBUG=False
 
 </div>
 
-<br>
-
-### 💌 Adoption Request Modal
-
-<div align="center">
-
-<!-- ➜ docs/screenshots/adopt-modal.png -->
-![Adoption Request Modal](docs/screenshots/adopt-modal.png)
-
-*Pre-filled applicant details with a personal message field*
-
-</div>
 
 <br>
 
@@ -285,19 +273,6 @@ Production security headers auto-enabled when DEBUG=False
 ![Forgot Password](docs/screenshots/forgot-password.png)
 
 *AJAX-powered reset link request with inline feedback*
-
-</div>
-
-<br>
-
-### 🔄 Password Reset Flow
-
-<div align="center">
-
-<!-- ➜ docs/screenshots/password-reset.png -->
-![Password Reset](docs/screenshots/password-reset.png)
-
-*Email-delivered reset link, confirmation, and completion screens*
 
 </div>
 
