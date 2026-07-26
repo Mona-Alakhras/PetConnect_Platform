@@ -19,10 +19,220 @@
   --shadow-card: 0 20px 50px -20px rgba(15, 35, 30, 0.25);
   --font-display: 'Fredoka', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
+
+  /* Accent palette — one hue per icon family, each with a soft tint
+     used for the chip behind the icon. */
+  --accent-amber: #e67e22;
+  --accent-amber-soft: #fdebd0;
+  --accent-amber-tint: #fff6ea;
+
+  --accent-violet: #7c5cd6;
+  --accent-violet-soft: #ebe5fb;
+  --accent-violet-tint: #f6f3fe;
+
+  --accent-sky: #2b8fd6;
+  --accent-sky-soft: #e0f0fb;
+  --accent-sky-tint: #f1f8fd;
+
+  --accent-green: #1e9e63;
+  --accent-green-soft: #e0f5ea;
+  --accent-green-tint: #f1fbf5;
+
+  --accent-rose: #e0576b;
+  --accent-rose-soft: #fce7ea;
+  --accent-rose-tint: #fef4f5;
 }
 
 * {
   box-sizing: border-box;
+}
+
+/* The browser hides [hidden] elements with `display: none`, but that comes
+   from the user-agent stylesheet and loses to any author `display` rule —
+   `.request-card { display: flex }` would keep a hidden card on screen.
+   This makes the attribute authoritative everywhere. */
+[hidden] {
+  display: none !important;
+}
+
+/* ==========================================================================
+   Icon system
+   Inline SVG icons rendered by the {% icon %} template tag.
+   They take their colour from `currentColor` and their size from the
+   `--icon-size` custom property, so any container can retune them.
+   ========================================================================== */
+
+.icon {
+  --icon-size: 1em;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  flex: 0 0 auto;
+  display: inline-block;
+  vertical-align: -0.15em;
+  color: inherit;
+  overflow: visible;
+}
+
+.icon--sm      { --icon-size: 0.875rem; }
+.icon--md      { --icon-size: 1.25rem; }
+.icon--lg      { --icon-size: 1.75rem; }
+.icon--xl      { --icon-size: 2.25rem; }
+.icon--display { --icon-size: 3.25rem; stroke-width: 1.5; }
+
+.icon--primary { color: var(--color-primary); }
+.icon--muted   { color: var(--color-text-muted); }
+.icon--success { color: var(--color-success-text); }
+.icon--danger  { color: var(--color-error-text); }
+.icon--inverse { color: #fff; }
+
+/* Inline label + icon pairing */
+.inline-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+}
+
+/* --- Icon chip ---------------------------------------------------------
+   A tinted, rounded tile that sits behind a display icon. The hue is set
+   once per chip via --chip-color / --chip-bg and the icon inherits it.
+   Selectors carry an extra class so they win over the page stylesheets,
+   which are linked after this file.
+   --------------------------------------------------------------------- */
+
+.icon-chip,
+.category-card .category-card__icon,
+.step-card .step-card__icon,
+.stat-card .stat-icon,
+.feature-box .feature-box__icon,
+.role-option .role-option__icon,
+.spec-item .spec-item__icon,
+.team-card .team-avatar-placeholder,
+.empty-state__icon,
+.empty-box__icon {
+  --chip-color: var(--accent-amber);
+  --chip-bg: var(--accent-amber-soft);
+  --chip-tint: var(--accent-amber-tint);
+  --chip-size: 64px;
+  --chip-radius: 20px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  /* Fixed box: the icon inside is sized as a percentage of it. */
+  padding: 0;
+  width: var(--chip-size);
+  height: var(--chip-size);
+  border-radius: var(--chip-radius);
+  background: linear-gradient(145deg, var(--chip-tint), var(--chip-bg));
+  color: var(--chip-color);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--chip-color) 14%, transparent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.icon-chip .icon,
+.category-card .category-card__icon .icon,
+.step-card .step-card__icon .icon,
+.stat-card .stat-icon .icon,
+.feature-box .feature-box__icon .icon,
+.role-option .role-option__icon .icon,
+.spec-item .spec-item__icon .icon,
+.team-card .team-avatar-placeholder .icon,
+.empty-state__icon .icon,
+.empty-box__icon .icon {
+  --icon-size: 55%;
+  color: var(--chip-color);
+  stroke-width: 1.9;
+}
+
+/* Hue modifiers */
+.chip--amber  { --chip-color: var(--accent-amber);  --chip-bg: var(--accent-amber-soft);  --chip-tint: var(--accent-amber-tint); }
+.chip--violet { --chip-color: var(--accent-violet); --chip-bg: var(--accent-violet-soft); --chip-tint: var(--accent-violet-tint); }
+.chip--sky    { --chip-color: var(--accent-sky);    --chip-bg: var(--accent-sky-soft);    --chip-tint: var(--accent-sky-tint); }
+.chip--green  { --chip-color: var(--accent-green);  --chip-bg: var(--accent-green-soft);  --chip-tint: var(--accent-green-tint); }
+.chip--rose   { --chip-color: var(--accent-rose);   --chip-bg: var(--accent-rose-soft);   --chip-tint: var(--accent-rose-tint); }
+
+/* Per-surface sizing */
+.category-card .category-card__icon { --chip-size: 84px; --chip-radius: 26px; margin-bottom: 18px; }
+.step-card .step-card__icon         { --chip-size: 72px; --chip-radius: 22px; margin-bottom: 20px; }
+.stat-card .stat-icon               { --chip-size: 56px; --chip-radius: 18px; margin-bottom: 14px; }
+.feature-box .feature-box__icon     { --chip-size: 55px; --chip-radius: 14px; }
+.role-option .role-option__icon     { --chip-size: 45px; --chip-radius: 50%; margin-bottom: 8px; }
+.spec-item .spec-item__icon         { --chip-size: 44px; --chip-radius: 13px; }
+.team-card .team-avatar-placeholder { --chip-size: 95px; --chip-radius: 50%; }
+.empty-state__icon,
+.empty-box__icon                    { --chip-size: 76px; --chip-radius: 50%; margin-bottom: 16px; }
+
+/* Lift the chip when its card is hovered */
+.category-card:hover .category-card__icon,
+.step-card:hover .step-card__icon {
+  transform: translateY(-4px);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--chip-color) 22%, transparent),
+    0 10px 22px -12px var(--chip-color);
+}
+
+/* --- Icons that live inside coloured surfaces ------------------------- */
+
+.navbar__logo .icon           { --icon-size: 1.3rem; color: #fff; }
+.navbar__toggle .icon         { --icon-size: 1.6rem; color: inherit; }
+.navbar__user-avatar .icon    { --icon-size: 1.15rem; color: var(--color-primary-dark); }
+.navbar__logout-btn .icon     { --icon-size: 1rem; }
+.site-footer__social .icon    { --icon-size: 1.05rem; color: #fff; }
+.site-footer__brand-row .icon { color: #fff; }
+.hero__badge .icon            { --icon-size: 1.1em; }
+
+/* --- Inline icons ----------------------------------------------------- */
+
+.pet-card__meta .icon,
+.pet-meta-row .icon,
+.pet-location .icon,
+.request-meta .icon {
+  --icon-size: 1.05em;
+  color: var(--color-primary);
+  opacity: 0.85;
+}
+
+.badge .icon,
+.status .icon,
+.status-badge .icon,
+.pill .icon { --icon-size: 0.95em; color: inherit; }
+
+.section__link .icon,
+.back-link .icon,
+.view-btn .icon,
+.read-more-link .icon,
+.pagination__link .icon,
+.auth-card__footer .icon,
+.forgot-link .icon { --icon-size: 1em; color: var(--color-primary); }
+
+.btn--primary .icon,
+.btn-primary-custom .icon,
+.primary-btn .icon,
+.adopt-btn .icon,
+.modal-btn-submit .icon { color: #fff; }
+
+.approve-btn .icon,
+.reject-btn .icon,
+.delete-btn .icon,
+.modal-close .icon { color: inherit; }
+
+.sidebar-btn .icon        { --icon-size: 1.15rem; color: var(--color-text-muted); }
+.sidebar-btn.active .icon,
+.sidebar-btn:hover .icon  { color: var(--color-primary); }
+
+/* Image placeholders */
+.pet-placeholder .icon        { --icon-size: 1.5rem; }
+.no-image-placeholder .icon   { --icon-size: 2rem; }
+.pet-card__image--empty .icon,
+.carousel-slide__empty .icon  { --icon-size: 2.5rem; }
+
+.pet-placeholder .icon,
+.no-image-placeholder .icon,
+.pet-card__image--empty .icon,
+.carousel-slide__empty .icon {
+  color: var(--color-primary);
+  opacity: 0.55;
 }
 
 body {
@@ -1127,3 +1337,320 @@ a {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   Accessibility helper
+   ========================================================================== */
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 2000;
+  padding: 12px 20px;
+  border-radius: 0 0 var(--radius-md) 0;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Flash messages
+   ========================================================================== */
+
+.flash-stack {
+  position: fixed;
+  top: 90px;
+  right: 24px;
+  z-index: 1500;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(380px, calc(100vw - 32px));
+}
+
+.flash {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--color-text-muted);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: 0 12px 30px -12px rgba(15, 35, 30, 0.35);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.flash--leaving {
+  opacity: 0;
+  transform: translateX(24px);
+}
+
+.flash__icon {
+  display: flex;
+  flex: 0 0 auto;
+  padding-top: 1px;
+}
+
+.flash__icon .icon {
+  --icon-size: 1.25rem;
+}
+
+.flash__text {
+  flex: 1 1 auto;
+  color: var(--color-text);
+}
+
+.flash__close {
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.flash__close:hover {
+  color: var(--color-text);
+}
+
+.flash--success {
+  border-left-color: var(--color-success-text);
+  background: var(--color-success-bg);
+}
+
+.flash--success .flash__icon {
+  color: var(--color-success-text);
+}
+
+.flash--error {
+  border-left-color: var(--color-error-text);
+  background: var(--color-error-bg);
+}
+
+.flash--error .flash__icon {
+  color: var(--color-error-text);
+}
+
+.flash--warning {
+  border-left-color: #b45309;
+  background: #fef6e7;
+}
+
+.flash--warning .flash__icon {
+  color: #b45309;
+}
+
+.flash--info .flash__icon {
+  color: var(--color-primary);
+}
+
+@media (max-width: 640px) {
+  .flash-stack {
+    top: auto;
+    bottom: 16px;
+    right: 16px;
+    left: 16px;
+    width: auto;
+  }
+}
+
+/* ==========================================================================
+   Inline form field errors
+   ========================================================================== */
+
+.field__error {
+  display: block;
+  margin-top: 6px;
+  color: var(--color-error-text);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.field--invalid input,
+.field--invalid select,
+.field--invalid textarea {
+  border-color: var(--color-error-text);
+}
+
+/* ==========================================================================
+   Reduced motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* ==========================================================================
+   Pagination (shared by Browse Pets and the dashboard)
+   ========================================================================== */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-top: 36px;
+  flex-wrap: wrap;
+}
+
+.pagination__link {
+  padding: 9px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.pagination__link:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+}
+
+.pagination__status {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Shared placeholders
+   ========================================================================== */
+
+.pet-card__image--empty,
+.carousel-slide__empty,
+.no-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 180px;
+  background: var(--color-primary-soft);
+  color: var(--color-text-muted);
+}
+
+.pet-placeholder--wide {
+  width: 100%;
+  min-height: 160px;
+  border-radius: var(--radius-md);
+}
+
+/* ==========================================================================
+   Gallery thumbnails
+   ========================================================================== */
+
+.pet-gallery__thumb {
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+  line-height: 0;
+  transition: border-color 0.15s ease, opacity 0.15s ease;
+  opacity: 0.75;
+}
+
+.pet-gallery__thumb:hover {
+  opacity: 1;
+}
+
+.pet-gallery__thumb.is-active {
+  border-color: var(--color-primary);
+  opacity: 1;
+}
+
+.pet-gallery__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ==========================================================================
+   Centred auth cards (password reset screens)
+   ========================================================================== */
+
+.auth-card--centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+}
+
+.auth-inline-message {
+  margin-top: 16px;
+  padding: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.auth-inline-message:not(:empty) {
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+}
+
+.auth-inline-message--success {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+.auth-inline-message--error {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.requests-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Disabled call-to-action buttons */
+.adopt-btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Remaining inline icons that sit on neutral text */
+.pet-info .inline-icon .icon,
+.form-group label .icon,
+.field label .icon { color: var(--color-primary); }
